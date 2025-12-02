@@ -1,0 +1,15 @@
+# Build artifacts
+/target/
+
+# Database files (local only)
+/data/*.db
+
+# Editor files
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+ *.venv*

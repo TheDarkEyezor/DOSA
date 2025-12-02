@@ -1,0 +1,87 @@
+{"text": "Create a presentation with John Gupta Monday at 5pm", "intent": "calendar_create", "slots": [{"start": 9, "end": 21, "label": "EVENT", "text": "presentation"}, {"start": 27, "end": 37, "label": "PER", "text": "John Gupta"}, {"start": 38, "end": 44, "label": "DATE", "text": "Monday"}, {"start": 48, "end": 51, "label": "TIME", "text": "5pm"}]}
+{"text": "/briefing", "intent": "command", "slots": []}
+{"text": "Respond to Lisa Smith's message", "intent": "email_reply", "slots": [{"start": 11, "end": 21, "label": "PER", "text": "Lisa Smith"}]}
+{"text": "Who do I know at Tesla?", "intent": "knowledge_query", "slots": [{"start": 17, "end": 22, "label": "ORG", "text": "Tesla"}]}
+{"text": "Can you set up a 1:1 with Anita this Friday?", "intent": "calendar_create", "slots": [{"start": 17, "end": 20, "label": "EVENT", "text": "1:1"}, {"start": 26, "end": 31, "label": "PER", "text": "Anita"}, {"start": 32, "end": 43, "label": "DATE", "text": "this Friday"}]}
+{"text": "Tell me about Wei Mathew", "intent": "knowledge_query", "slots": [{"start": 14, "end": 24, "label": "PER", "text": "Wei Mathew"}]}
+{"text": "Can you set up a coffee with Ashley Davis Thursday?", "intent": "calendar_create", "slots": [{"start": 17, "end": 23, "label": "EVENT", "text": "coffee"}, {"start": 29, "end": 41, "label": "PER", "text": "Ashley Davis"}, {"start": 42, "end": 50, "label": "DATE", "text": "Thursday"}]}
+{"text": "Write an email to Yuki", "intent": "email_compose", "slots": [{"start": 18, "end": 22, "label": "PER", "text": "Yuki"}]}
+{"text": "Please delete the review Sunday", "intent": "calendar_delete", "slots": [{"start": 18, "end": 24, "label": "EVENT", "text": "review"}, {"start": 25, "end": 31, "label": "DATE", "text": "Sunday"}]}
+{"text": "What do you know about Alice?", "intent": "knowledge_query", "slots": [{"start": 23, "end": 28, "label": "PER", "text": "Alice"}]}
+{"text": "Reschedule one-on-one with Bob to noon", "intent": "calendar_update", "slots": [{"start": 11, "end": 21, "label": "EVENT", "text": "one-on-one"}, {"start": 27, "end": 30, "label": "PER", "text": "Bob"}, {"start": 34, "end": 38, "label": "TIME", "text": "noon"}]}
+{"text": "Remember that Rohan's email is rohan@example.com", "intent": "contact_update", "slots": [{"start": 14, "end": 19, "label": "PER", "text": "Rohan"}, {"start": 31, "end": 48, "label": "EMAIL", "text": "rohan@example.com"}]}
+{"text": "Reply to William saying I'll be there", "intent": "email_reply", "slots": [{"start": 9, "end": 16, "label": "PER", "text": "William"}]}
+{"text": "Summarize my emails", "intent": "email_query", "slots": []}
+{"text": "Show emails from Sarah", "intent": "email_query", "slots": [{"start": 17, "end": 22, "label": "PER", "text": "Sarah"}]}
+{"text": "Who is James Wang?", "intent": "knowledge_query", "slots": [{"start": 7, "end": 17, "label": "PER", "text": "James Wang"}]}
+{"text": "Lunch with Alice Saturday at 3:30pm", "intent": "calendar_create", "slots": [{"start": 11, "end": 16, "label": "PER", "text": "Alice"}, {"start": 17, "end": 25, "label": "DATE", "text": "Saturday"}, {"start": 29, "end": 35, "label": "TIME", "text": "3:30pm"}]}
+{"text": "Reply to Amogh Patel saying I'll be there", "intent": "email_reply", "slots": [{"start": 9, "end": 20, "label": "PER", "text": "Amogh Patel"}]}
+{"text": "Show me James's emails", "intent": "email_query", "slots": [{"start": 8, "end": 13, "label": "PER", "text": "James"}]}
+{"text": "What's in my inbox?", "intent": "email_query", "slots": []}
+{"text": "Compose an email to Emma Rodriguez", "intent": "email_compose", "slots": [{"start": 20, "end": 34, "label": "PER", "text": "Emma Rodriguez"}]}
+{"text": "What do I have tomorrow?", "intent": "calendar_query", "slots": []}
+{"text": "Send Maria Wang an email about DOSA", "intent": "email_compose", "slots": [{"start": 5, "end": 15, "label": "PER", "text": "Maria Wang"}, {"start": 31, "end": 35, "label": "EVENT", "text": "DOSA"}]}
+{"text": "Set Fatima's email to fatima@example.com", "intent": "contact_update", "slots": [{"start": 4, "end": 10, "label": "PER", "text": "Fatima"}, {"start": 22, "end": 40, "label": "EMAIL", "text": "fatima@example.com"}]}
+{"text": "Change the coffee to this week at 4pm", "intent": "calendar_update", "slots": [{"start": 11, "end": 17, "label": "EVENT", "text": "coffee"}, {"start": 21, "end": 30, "label": "DATE", "text": "this week"}, {"start": 34, "end": 37, "label": "TIME", "text": "4pm"}]}
+{"text": "Add Raj Brown, she studies at Microsoft", "intent": "contact_update", "slots": [{"start": 4, "end": 13, "label": "PER", "text": "Raj Brown"}, {"start": 30, "end": 39, "label": "ORG", "text": "Microsoft"}]}
+{"text": "Can you help me write an email to Jessica Yamamoto?", "intent": "email_compose", "slots": [{"start": 34, "end": 50, "label": "PER", "text": "Jessica Yamamoto"}]}
+{"text": "Show me Daniel's emails", "intent": "email_query", "slots": [{"start": 8, "end": 14, "label": "PER", "text": "Daniel"}]}
+{"text": "Write an email to Ahmed Li", "intent": "email_compose", "slots": [{"start": 18, "end": 26, "label": "PER", "text": "Ahmed Li"}]}
+{"text": "Notify the one-on-one attendees about the change", "intent": "email_attendees", "slots": [{"start": 11, "end": 21, "label": "EVENT", "text": "one-on-one"}]}
+{"text": "The workshop needs to move to Friday", "intent": "calendar_update", "slots": [{"start": 4, "end": 12, "label": "EVENT", "text": "workshop"}, {"start": 30, "end": 36, "label": "DATE", "text": "Friday"}]}
+{"text": "Reschedule interview with Rohan Davis to 9am", "intent": "calendar_update", "slots": [{"start": 11, "end": 20, "label": "EVENT", "text": "interview"}, {"start": 26, "end": 37, "label": "PER", "text": "Rohan Davis"}, {"start": 41, "end": 44, "label": "TIME", "text": "9am"}]}
+{"text": "Check for emails from Maria", "intent": "email_query", "slots": [{"start": 22, "end": 27, "label": "PER", "text": "Maria"}]}
+{"text": "Add Bob Tanaka, they work at Amazon", "intent": "contact_update", "slots": [{"start": 4, "end": 14, "label": "PER", "text": "Bob Tanaka"}, {"start": 29, "end": 35, "label": "ORG", "text": "Amazon"}]}
+{"text": "Compose an email to Vikram", "intent": "email_compose", "slots": [{"start": 20, "end": 26, "label": "PER", "text": "Vikram"}]}
+{"text": "Book a retrospective for today at 5pm", "intent": "calendar_create", "slots": [{"start": 7, "end": 20, "label": "EVENT", "text": "retrospective"}, {"start": 25, "end": 30, "label": "DATE", "text": "today"}, {"start": 34, "end": 37, "label": "TIME", "text": "5pm"}]}
+{"text": "I'm having brainstorm with Fatima", "intent": "calendar_create", "slots": [{"start": 11, "end": 21, "label": "EVENT", "text": "brainstorm"}, {"start": 27, "end": 33, "label": "PER", "text": "Fatima"}]}
+{"text": "Email Wei about the planning session", "intent": "email_compose", "slots": [{"start": 6, "end": 9, "label": "PER", "text": "Wei"}, {"start": 20, "end": 36, "label": "EVENT", "text": "planning session"}]}
+{"text": "Tell me about Fatima Kumar", "intent": "knowledge_query", "slots": [{"start": 14, "end": 26, "label": "PER", "text": "Fatima Kumar"}]}
+{"text": "Cancel catch-up with Alice Tanaka", "intent": "calendar_delete", "slots": [{"start": 7, "end": 15, "label": "EVENT", "text": "catch-up"}, {"start": 21, "end": 33, "label": "PER", "text": "Alice Tanaka"}]}
+{"text": "Priya's email address is priya@example.com", "intent": "contact_update", "slots": [{"start": 0, "end": 5, "label": "PER", "text": "Priya"}, {"start": 25, "end": 42, "label": "EMAIL", "text": "priya@example.com"}]}
+{"text": "Anything scheduled for tomorrow?", "intent": "calendar_query", "slots": []}
+{"text": "Sarah Santos works at Amazon", "intent": "contact_update", "slots": [{"start": 0, "end": 12, "label": "PER", "text": "Sarah Santos"}, {"start": 22, "end": 28, "label": "ORG", "text": "Amazon"}]}
+{"text": "Can you help me write an email to Raj Smith?", "intent": "email_compose", "slots": [{"start": 34, "end": 43, "label": "PER", "text": "Raj Smith"}]}
+{"text": "Show me my contacts", "intent": "knowledge_query", "slots": []}
+{"text": "Tell the attendees the 1:1 is rescheduled", "intent": "email_attendees", "slots": [{"start": 23, "end": 26, "label": "EVENT", "text": "1:1"}]}
+{"text": "Who do I know at Microsoft?", "intent": "knowledge_query", "slots": [{"start": 17, "end": 26, "label": "ORG", "text": "Microsoft"}]}
+{"text": "List contacts at McKinsey", "intent": "knowledge_query", "slots": [{"start": 17, "end": 25, "label": "ORG", "text": "McKinsey"}]}
+{"text": "Show emails from Amogh Wang", "intent": "email_query", "slots": [{"start": 17, "end": 27, "label": "PER", "text": "Amogh Wang"}]}
+{"text": "Book their office for a demo today at 9:30am", "intent": "calendar_create", "slots": [{"start": 5, "end": 17, "label": "LOC", "text": "their office"}, {"start": 24, "end": 28, "label": "EVENT", "text": "demo"}, {"start": 29, "end": 34, "label": "DATE", "text": "today"}, {"start": 38, "end": 44, "label": "TIME", "text": "9:30am"}]}
+{"text": "Fatima's email is fatima@example.com", "intent": "contact_update", "slots": [{"start": 0, "end": 6, "label": "PER", "text": "Fatima"}, {"start": 18, "end": 36, "label": "EMAIL", "text": "fatima@example.com"}]}
+{"text": "Arrange a interview at Starbucks on Main Street Tuesday", "intent": "calendar_create", "slots": [{"start": 10, "end": 19, "label": "EVENT", "text": "interview"}, {"start": 23, "end": 47, "label": "LOC", "text": "Starbucks on Main Street"}, {"start": 48, "end": 55, "label": "DATE", "text": "Tuesday"}]}
+{"text": "Schedule planning session with Emma Patel at building 5 the day after tomorrow", "intent": "calendar_create", "slots": [{"start": 9, "end": 25, "label": "EVENT", "text": "planning session"}, {"start": 31, "end": 41, "label": "PER", "text": "Emma Patel"}, {"start": 45, "end": 55, "label": "LOC", "text": "building 5"}, {"start": 56, "end": 78, "label": "DATE", "text": "the day after tomorrow"}]}
+{"text": "Update the sync location to the meeting room", "intent": "calendar_update", "slots": [{"start": 11, "end": 15, "label": "EVENT", "text": "sync"}, {"start": 28, "end": 44, "label": "LOC", "text": "the meeting room"}]}
+{"text": "Draft an email to Fatima Miller regarding the API", "intent": "email_compose", "slots": [{"start": 18, "end": 31, "label": "PER", "text": "Fatima Miller"}, {"start": 42, "end": 49, "label": "EVENT", "text": "the API"}]}
+{"text": "Let the attendees of today's sync know it's postponed", "intent": "email_attendees", "slots": [{"start": 29, "end": 33, "label": "EVENT", "text": "sync"}, {"start": 21, "end": 26, "label": "DATE", "text": "today"}]}
+{"text": "Add Emily, he studies at Tesla", "intent": "contact_update", "slots": [{"start": 4, "end": 9, "label": "PER", "text": "Emily"}, {"start": 25, "end": 30, "label": "ORG", "text": "Tesla"}]}
+{"text": "What can you do?", "intent": "conversation", "slots": []}
+{"text": "Arrange a catch-up at room 301 Wednesday", "intent": "calendar_create", "slots": [{"start": 10, "end": 18, "label": "EVENT", "text": "catch-up"}, {"start": 22, "end": 30, "label": "LOC", "text": "room 301"}, {"start": 31, "end": 40, "label": "DATE", "text": "Wednesday"}]}
+{"text": "Update the demo location to Central Park", "intent": "calendar_update", "slots": [{"start": 11, "end": 15, "label": "EVENT", "text": "demo"}, {"start": 28, "end": 40, "label": "LOC", "text": "Central Park"}]}
+{"text": "Respond to the email about the integration project", "intent": "email_reply", "slots": [{"start": 27, "end": 50, "label": "EVENT", "text": "the integration project"}]}
+{"text": "Change the time of the catch-up to in the morning", "intent": "calendar_update", "slots": [{"start": 23, "end": 31, "label": "EVENT", "text": "catch-up"}, {"start": 35, "end": 49, "label": "TIME", "text": "in the morning"}]}
+{"text": "/help", "intent": "command", "slots": []}
+{"text": "Send Fatima Silva an email about the mobile app", "intent": "email_compose", "slots": [{"start": 5, "end": 17, "label": "PER", "text": "Fatima Silva"}, {"start": 33, "end": 47, "label": "EVENT", "text": "the mobile app"}]}
+{"text": "Schedule a coffee with Neha next Monday", "intent": "calendar_create", "slots": [{"start": 11, "end": 17, "label": "EVENT", "text": "coffee"}, {"start": 23, "end": 27, "label": "PER", "text": "Neha"}, {"start": 28, "end": 39, "label": "DATE", "text": "next Monday"}]}
+{"text": "Any emails from Maria?", "intent": "email_query", "slots": [{"start": 16, "end": 21, "label": "PER", "text": "Maria"}]}
+{"text": "Priya's email address is priya@example.com", "intent": "contact_update", "slots": [{"start": 0, "end": 5, "label": "PER", "text": "Priya"}, {"start": 25, "end": 42, "label": "EMAIL", "text": "priya@example.com"}]}
+{"text": "What do you know about Daniel Li?", "intent": "knowledge_query", "slots": [{"start": 23, "end": 32, "label": "PER", "text": "Daniel Li"}]}
+{"text": "Add Raj Singh, she works at Innovate Labs", "intent": "contact_update", "slots": [{"start": 4, "end": 13, "label": "PER", "text": "Raj Singh"}, {"start": 28, "end": 41, "label": "ORG", "text": "Innovate Labs"}]}
+{"text": "I need to cancel the demo", "intent": "calendar_delete", "slots": [{"start": 21, "end": 25, "label": "EVENT", "text": "demo"}]}
+{"text": "Email Neha about the presentation", "intent": "email_compose", "slots": [{"start": 6, "end": 10, "label": "PER", "text": "Neha"}, {"start": 21, "end": 33, "label": "EVENT", "text": "presentation"}]}
+{"text": "Who do I know at Netflix?", "intent": "knowledge_query", "slots": [{"start": 17, "end": 24, "label": "ORG", "text": "Netflix"}]}
+{"text": "What's on my calendar this week?", "intent": "calendar_query", "slots": [{"start": 22, "end": 31, "label": "DATE", "text": "this week"}]}
+{"text": "Draft an email to Amogh Davis regarding the API", "intent": "email_compose", "slots": [{"start": 18, "end": 29, "label": "PER", "text": "Amogh Davis"}, {"start": 40, "end": 47, "label": "EVENT", "text": "the API"}]}
+{"text": "Let the attendees of the day after tomorrow's standup know it's postponed", "intent": "email_attendees", "slots": [{"start": 29, "end": 36, "label": "EVENT", "text": "standup"}, {"start": 21, "end": 43, "label": "DATE", "text": "the day after tomorrow"}]}
+{"text": "Set Carlos's email to carlos@example.com", "intent": "contact_update", "slots": [{"start": 4, "end": 10, "label": "PER", "text": "Carlos"}, {"start": 22, "end": 40, "label": "EMAIL", "text": "carlos@example.com"}]}
+{"text": "/gcal list", "intent": "command", "slots": []}
+{"text": "Email Emily about the meeting", "intent": "email_compose", "slots": [{"start": 6, "end": 11, "label": "PER", "text": "Emily"}, {"start": 22, "end": 29, "label": "EVENT", "text": "meeting"}]}
+{"text": "Email Alice Martinez about the lunch", "intent": "email_compose", "slots": [{"start": 6, "end": 20, "label": "PER", "text": "Alice Martinez"}, {"start": 31, "end": 36, "label": "EVENT", "text": "lunch"}]}
+{"text": "Tell the attendees the interview is rescheduled", "intent": "email_attendees", "slots": [{"start": 23, "end": 32, "label": "EVENT", "text": "interview"}]}
+{"text": "I need to email Maria Atreya", "intent": "email_compose", "slots": [{"start": 16, "end": 28, "label": "PER", "text": "Maria Atreya"}]}
+{"text": "Add Arjun Brown as a person I know", "intent": "contact_update", "slots": [{"start": 4, "end": 15, "label": "PER", "text": "Arjun Brown"}]}
+{"text": "Remember that Arjun's email is arjun@example.com", "intent": "contact_update", "slots": [{"start": 14, "end": 19, "label": "PER", "text": "Arjun"}, {"start": 31, "end": 48, "label": "EMAIL", "text": "arjun@example.com"}]}
+{"text": "Book a standup for today at 5pm", "intent": "calendar_create", "slots": [{"start": 7, "end": 14, "label": "EVENT", "text": "standup"}, {"start": 19, "end": 24, "label": "DATE", "text": "today"}, {"start": 28, "end": 31, "label": "TIME", "text": "5pm"}]}
+{"text": "Let the attendees of Thursday's standup know it's postponed", "intent": "email_attendees", "slots": [{"start": 29, "end": 36, "label": "EVENT", "text": "standup"}, {"start": 21, "end": 29, "label": "DATE", "text": "Thursday"}]}
+{"text": "Add Anita Atreya, she studies at Harvard Business School", "intent": "contact_update", "slots": [{"start": 4, "end": 16, "label": "PER", "text": "Anita Atreya"}, {"start": 33, "end": 56, "label": "ORG", "text": "Harvard Business School"}]}
+{"text": "Schedule a 1:1 with Sarah Davis Sunday", "intent": "calendar_create", "slots": [{"start": 11, "end": 14, "label": "EVENT", "text": "1:1"}, {"start": 20, "end": 31, "label": "PER", "text": "Sarah Davis"}, {"start": 32, "end": 38, "label": "DATE", "text": "Sunday"}]}

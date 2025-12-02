@@ -1,0 +1,12 @@
+calendar_create
+calendar_delete
+calendar_query
+calendar_update
+command
+contact_update
+conversation
+email_attendees
+email_compose
+email_query
+email_reply
+knowledge_query
