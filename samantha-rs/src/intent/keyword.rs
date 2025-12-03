@@ -138,9 +138,52 @@ impl KeywordClassifier {
         
         // Query keywords
         let query_words = ["what", "show", "list", "do i have", "am i", "my calendar",
-                          "my schedule", "what's on", "what is on", "any events"];
+                          "my schedule", "what's on", "what is on", "any events", "meetings"];
         if query_words.iter().any(|k| lower.contains(k)) {
             score += 0.5;
+        }
+        
+        // Check for person-based queries ("meetings with John")
+        let with_patterns = ["with ", "involving ", "including "];
+        for pattern in with_patterns {
+            if lower.contains(pattern) {
+                score += 0.4;
+                // Extract person name
+                if let Some(pos) = lower.find(pattern) {
+                    let after = &lower[pos + pattern.len()..];
+                    let words: Vec<&str> = after.split_whitespace().take(3).collect();
+                    if !words.is_empty() && !["the", "a", "my", "on", "for", "at"].contains(&words[0]) {
+                        let person = words.join(" ");
+                        query_type = CalendarQueryType::WithPerson(person);
+                        return (score.min(1.0), query_type);
+                    }
+                }
+            }
+        }
+        
+        // Check for topic-based queries ("meetings about AI")
+        let topic_patterns = [
+            ("about ", 0.4),
+            ("related to ", 0.4),
+            ("regarding ", 0.4),
+            ("concerning ", 0.4),
+            ("for ", 0.3),
+        ];
+        for (pattern, boost) in topic_patterns {
+            if lower.contains(pattern) {
+                if let Some(pos) = lower.find(pattern) {
+                    let after = &lower[pos + pattern.len()..];
+                    let topic = after.trim()
+                        .trim_start_matches("the ")
+                        .trim_start_matches("a ");
+                    // Skip if it's a time word
+                    if !topic.is_empty() && !["today", "tomorrow", "week", "next", "this"].iter().any(|t| topic.starts_with(t)) {
+                        score += boost;
+                        query_type = CalendarQueryType::Topic(topic.to_string());
+                        return (score.min(1.0), query_type);
+                    }
+                }
+            }
         }
         
         // Time specifiers determine query type
@@ -270,18 +313,39 @@ impl KeywordClassifier {
         
         let email_query_words = ["my emails", "my inbox", "my mail", "check email",
                                 "show email", "any emails", "any mail", "unread emails",
-                                "new emails", "show me my"];
+                                "new emails", "show me my", "emails i", "what emails"];
         if email_query_words.iter().any(|k| lower.contains(k)) {
             score += 0.5;
         }
         
         // Email word by itself with query intent
-        if lower.contains("email") && (lower.contains("show") || lower.contains("check") || lower.contains("my")) {
+        if lower.contains("email") && (lower.contains("show") || lower.contains("check") || lower.contains("my") || lower.contains("what")) {
             score += 0.3;
         }
         
+        // Topic/semantic query patterns - "emails about X", "emails related to X"
+        let topic_patterns = [
+            ("about ", "emails about"),
+            ("related to ", "related to"),
+            ("regarding ", "regarding"),
+            ("concerning ", "concerning"),
+            ("mentioning ", "mentioning"),
+            ("on the topic of ", "topic of"),
+        ];
+        
+        for (pattern, context) in topic_patterns {
+            if lower.contains(context) || (lower.contains("email") && lower.contains(pattern)) {
+                // Extract the topic
+                if let Some(topic) = self.extract_topic_from_query(lower, pattern) {
+                    query_type = EmailQueryType::Topic(topic);
+                    score += 0.6;
+                    return (score.min(1.0), query_type);
+                }
+            }
+        }
+        
         // Determine subtype
-        if lower.contains("unread") || lower.contains("new ") {
+        if lower.contains("unread") || (lower.contains("new ") && lower.contains("email")) {
             query_type = EmailQueryType::Unread;
             score += 0.3;
         } else if lower.contains("from ") {
@@ -300,6 +364,26 @@ impl KeywordClassifier {
         }
         
         (score.min(1.0), query_type)
+    }
+    
+    /// Extract topic from email query
+    fn extract_topic_from_query(&self, lower: &str, pattern: &str) -> Option<String> {
+        if let Some(idx) = lower.find(pattern) {
+            let after = &lower[idx + pattern.len()..];
+            // Take words until end or common stop words
+            let stop_words = ["?", ".", "!", ",", " and ", " or ", " that ", " which "];
+            let mut end_idx = after.len();
+            for stop in stop_words {
+                if let Some(stop_idx) = after.find(stop) {
+                    end_idx = end_idx.min(stop_idx);
+                }
+            }
+            let topic = after[..end_idx].trim();
+            if !topic.is_empty() {
+                return Some(topic.to_string());
+            }
+        }
+        None
     }
     
     /// Score how well input matches knowledge graph query patterns

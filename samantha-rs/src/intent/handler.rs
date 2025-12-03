@@ -385,6 +385,18 @@ impl<'a> IntentHandler<'a> {
                     Err(e) => Ok(HandleResult::Error(format!("Could not fetch calendar: {}", e)))
                 }
             }
+            CalendarQueryType::WithPerson(person) => {
+                self.handle_calendar_with_person(&client, person).await
+            }
+            CalendarQueryType::Topic(topic) => {
+                self.handle_calendar_topic(&client, topic).await
+            }
+            CalendarQueryType::WithOrg(org) => {
+                self.handle_calendar_with_org(&client, org).await
+            }
+            CalendarQueryType::Filter(filter) => {
+                self.handle_calendar_filter(&client, filter).await
+            }
         }
     }
 
@@ -581,6 +593,554 @@ impl<'a> IntentHandler<'a> {
                     Err(e) => Ok(HandleResult::Error(format!("Could not fetch emails: {}", e)))
                 }
             }
+            EmailQueryType::Topic(topic) => {
+                self.handle_email_topic_query(&client, topic).await
+            }
+            EmailQueryType::AboutPerson(person) => {
+                self.handle_email_about_person(&client, person).await
+            }
+            EmailQueryType::AboutOrg(org) => {
+                self.handle_email_about_org(&client, org).await
+            }
+            EmailQueryType::DateRange { from, to } => {
+                self.handle_email_date_range(&client, from.as_ref(), to.as_ref()).await
+            }
+            EmailQueryType::Filter(filter) => {
+                self.handle_email_complex_filter(&client, filter).await
+            }
+        }
+    }
+
+    /// Handle topic-based email search
+    async fn handle_email_topic_query(&self, client: &GmailClient, topic: &str) -> Result<HandleResult> {
+        // Build Gmail search query for topic
+        // Gmail supports subject: and body content search
+        let query = format!("subject:{} OR {}", topic, topic);
+        
+        match client.list_messages(Some(&query), 20).await {
+            Ok(emails) => {
+                if emails.is_empty() {
+                    Ok(HandleResult::Handled(format!("📧 No emails found about '{}'.", topic)))
+                } else {
+                    // Use LLM to filter and rank by relevance
+                    let filtered = self.filter_emails_by_topic(&emails, topic).await;
+                    
+                    if filtered.is_empty() {
+                        Ok(HandleResult::Handled(format!("📧 No emails closely related to '{}'.", topic)))
+                    } else {
+                        let mut output = format!("📧 Emails about '{}' ({}):\n", topic, filtered.len());
+                        for email in &filtered {
+                            output.push_str(&format!("  {}\n", email.display_short()));
+                        }
+                        Ok(HandleResult::Handled(output))
+                    }
+                }
+            }
+            Err(e) => Ok(HandleResult::Error(format!("Could not search emails: {}", e)))
+        }
+    }
+
+    /// Filter emails by topic using LLM
+    async fn filter_emails_by_topic(&self, emails: &[crate::integrations::google::gmail::EmailSummary], topic: &str) -> Vec<crate::integrations::google::gmail::EmailSummary> {
+        // For efficiency, use a single LLM call to score all emails
+        let email_list: Vec<String> = emails.iter().enumerate()
+            .map(|(i, e)| format!("{}. From: {} | Subject: {} | Preview: {}", 
+                i + 1, e.from, e.subject, e.snippet.chars().take(100).collect::<String>()))
+            .collect();
+        
+        let prompt = format!(
+            r#"Given these emails, identify which ones are related to the topic "{}".
+Return ONLY a JSON array of the email numbers (1-indexed) that are relevant.
+
+Emails:
+{}
+
+Respond with just the JSON array, e.g., [1, 3, 5] or [] if none are relevant:"#,
+            topic,
+            email_list.join("\n")
+        );
+        
+        match self.llm.query(&prompt).await {
+            Ok(response) => {
+                // Parse the response to get relevant indices
+                if let Some(start) = response.find('[') {
+                    if let Some(end) = response.rfind(']') {
+                        let json_str = &response[start..=end];
+                        if let Ok(indices) = serde_json::from_str::<Vec<usize>>(json_str) {
+                            return indices.iter()
+                                .filter_map(|&i| emails.get(i.saturating_sub(1)).cloned())
+                                .collect();
+                        }
+                    }
+                }
+                // If parsing fails, return all emails
+                emails.to_vec()
+            }
+            Err(_) => emails.to_vec()
+        }
+    }
+
+    /// Handle emails about a specific person (using KG)
+    async fn handle_email_about_person(&self, client: &GmailClient, person: &str) -> Result<HandleResult> {
+        // Look up person in KG to get email address
+        let person_email = self.graph.find_person(person)
+            .ok()
+            .flatten()
+            .and_then(|e| e.properties.get("email").cloned());
+        
+        // Build search query
+        let query = if let Some(email) = &person_email {
+            format!("from:{} OR to:{} OR {}", email, email, person)
+        } else {
+            person.to_string()
+        };
+        
+        match client.list_messages(Some(&query), 15).await {
+            Ok(emails) => {
+                if emails.is_empty() {
+                    Ok(HandleResult::Handled(format!("📧 No emails found involving {}.", person)))
+                } else {
+                    let mut output = format!("📧 Emails involving {} ({}):\n", person, emails.len());
+                    for email in &emails {
+                        output.push_str(&format!("  {}\n", email.display_short()));
+                    }
+                    Ok(HandleResult::Handled(output))
+                }
+            }
+            Err(e) => Ok(HandleResult::Error(format!("Could not search emails: {}", e)))
+        }
+    }
+
+    /// Handle emails about a specific organization (using KG)
+    async fn handle_email_about_org(&self, client: &GmailClient, org: &str) -> Result<HandleResult> {
+        // Look up org in KG to find related people/domains
+        let org_domain = self.infer_org_domain(org);
+        
+        // Build search query
+        let query = if let Some(domain) = &org_domain {
+            format!("from:{} OR to:{} OR {}", domain, domain, org)
+        } else {
+            org.to_string()
+        };
+        
+        match client.list_messages(Some(&query), 15).await {
+            Ok(emails) => {
+                if emails.is_empty() {
+                    Ok(HandleResult::Handled(format!("📧 No emails found related to {}.", org)))
+                } else {
+                    let mut output = format!("📧 Emails related to {} ({}):\n", org, emails.len());
+                    for email in &emails {
+                        output.push_str(&format!("  {}\n", email.display_short()));
+                    }
+                    Ok(HandleResult::Handled(output))
+                }
+            }
+            Err(e) => Ok(HandleResult::Error(format!("Could not search emails: {}", e)))
+        }
+    }
+
+    /// Infer organization email domain from name
+    fn infer_org_domain(&self, org: &str) -> Option<String> {
+        let lower = org.to_lowercase();
+        let common_domains = [
+            ("google", "@google.com"),
+            ("microsoft", "@microsoft.com"),
+            ("apple", "@apple.com"),
+            ("amazon", "@amazon.com"),
+            ("meta", "@meta.com"),
+            ("facebook", "@fb.com"),
+            ("netflix", "@netflix.com"),
+            ("uber", "@uber.com"),
+            ("stripe", "@stripe.com"),
+            ("airbnb", "@airbnb.com"),
+        ];
+        
+        for (name, domain) in common_domains {
+            if lower.contains(name) {
+                return Some(domain.to_string());
+            }
+        }
+        
+        // Try to construct domain from org name
+        let sanitized: String = lower.chars()
+            .filter(|c| c.is_alphanumeric())
+            .collect();
+        if !sanitized.is_empty() {
+            Some(format!("@{}.com", sanitized))
+        } else {
+            None
+        }
+    }
+
+    /// Handle date range email query
+    async fn handle_email_date_range(
+        &self, 
+        client: &GmailClient, 
+        from: Option<&chrono::DateTime<chrono::Utc>>, 
+        to: Option<&chrono::DateTime<chrono::Utc>>
+    ) -> Result<HandleResult> {
+        let mut query_parts = Vec::new();
+        
+        if let Some(from_date) = from {
+            query_parts.push(format!("after:{}", from_date.format("%Y/%m/%d")));
+        }
+        if let Some(to_date) = to {
+            query_parts.push(format!("before:{}", to_date.format("%Y/%m/%d")));
+        }
+        
+        let query = if query_parts.is_empty() {
+            None
+        } else {
+            Some(query_parts.join(" "))
+        };
+        
+        match client.list_messages(query.as_deref(), 20).await {
+            Ok(emails) => {
+                if emails.is_empty() {
+                    Ok(HandleResult::Handled("📧 No emails found in the specified date range.".to_string()))
+                } else {
+                    let mut output = format!("📧 Emails ({}):\n", emails.len());
+                    for email in &emails {
+                        output.push_str(&format!("  {}\n", email.display_short()));
+                    }
+                    Ok(HandleResult::Handled(output))
+                }
+            }
+            Err(e) => Ok(HandleResult::Error(format!("Could not search emails: {}", e)))
+        }
+    }
+
+    /// Handle complex email filter
+    async fn handle_email_complex_filter(&self, client: &GmailClient, filter: &crate::intent::types::EmailFilter) -> Result<HandleResult> {
+        // Build Gmail search query from filter
+        let mut query_parts = Vec::new();
+        
+        // Topics/keywords
+        for topic in &filter.topics {
+            query_parts.push(format!("({})", topic));
+        }
+        
+        // From filters
+        for from in &filter.from {
+            query_parts.push(format!("from:{}", from));
+        }
+        
+        // To filters
+        for to in &filter.to {
+            query_parts.push(format!("to:{}", to));
+        }
+        
+        // Unread only
+        if filter.unread_only {
+            query_parts.push("is:unread".to_string());
+        }
+        
+        // Important only
+        if filter.important_only {
+            query_parts.push("is:important OR is:starred".to_string());
+        }
+        
+        // Date filters
+        if let Some(after) = &filter.after {
+            query_parts.push(format!("after:{}", after.format("%Y/%m/%d")));
+        }
+        if let Some(before) = &filter.before {
+            query_parts.push(format!("before:{}", before.format("%Y/%m/%d")));
+        }
+        
+        let query = if query_parts.is_empty() {
+            None
+        } else {
+            Some(query_parts.join(" "))
+        };
+        
+        let limit = if filter.limit > 0 { filter.limit } else { 20 };
+        
+        match client.list_messages(query.as_deref(), limit).await {
+            Ok(mut emails) => {
+                // Post-filter by people/orgs if specified
+                if !filter.mentions_people.is_empty() || !filter.mentions_orgs.is_empty() {
+                    emails = self.post_filter_emails(&emails, &filter.mentions_people, &filter.mentions_orgs).await;
+                }
+                
+                if emails.is_empty() {
+                    Ok(HandleResult::Handled("📧 No emails match your filter criteria.".to_string()))
+                } else {
+                    let mut output = format!("📧 Filtered Emails ({}):\n", emails.len());
+                    for email in &emails {
+                        output.push_str(&format!("  {}\n", email.display_short()));
+                    }
+                    Ok(HandleResult::Handled(output))
+                }
+            }
+            Err(e) => Ok(HandleResult::Error(format!("Could not search emails: {}", e)))
+        }
+    }
+
+    /// Post-filter emails by people/org mentions
+    async fn post_filter_emails(
+        &self, 
+        emails: &[crate::integrations::google::gmail::EmailSummary],
+        people: &[String],
+        orgs: &[String]
+    ) -> Vec<crate::integrations::google::gmail::EmailSummary> {
+        emails.iter()
+            .filter(|email| {
+                let content = format!("{} {} {}", email.from, email.subject, email.snippet).to_lowercase();
+                
+                // Check people mentions
+                let people_match = people.is_empty() || 
+                    people.iter().any(|p| content.contains(&p.to_lowercase()));
+                
+                // Check org mentions
+                let org_match = orgs.is_empty() || 
+                    orgs.iter().any(|o| content.contains(&o.to_lowercase()));
+                
+                people_match && org_match
+            })
+            .cloned()
+            .collect()
+    }
+
+    // Calendar semantic query handlers
+
+    /// Handle calendar query for meetings with a specific person
+    async fn handle_calendar_with_person(&self, client: &GoogleCalendarClient, person: &str) -> Result<HandleResult> {
+        // Look up person in KG to get email address for attendee matching
+        let person_email = self.graph.find_person(person)
+            .ok()
+            .flatten()
+            .and_then(|e| e.properties.get("email").cloned());
+        
+        // Get upcoming events
+        match client.get_upcoming_events(30).await {
+            Ok(events) => {
+                let lower_person = person.to_lowercase();
+                let filtered: Vec<_> = events.iter()
+                    .filter(|e| {
+                        let attendees = e.attendees.as_ref();
+                        // Check if person is in attendees
+                        let in_attendees = attendees.map(|atts| atts.iter().any(|a| {
+                            a.email.as_ref().map(|em| em.to_lowercase().contains(&lower_person)).unwrap_or(false) ||
+                            a.display_name.as_ref().map(|n| n.to_lowercase().contains(&lower_person)).unwrap_or(false)
+                        })).unwrap_or(false);
+                        // Check email match if we have it
+                        let email_match = person_email.as_ref().map(|pe| {
+                            attendees.map(|atts| atts.iter().any(|a| 
+                                a.email.as_ref().map(|em| em.eq_ignore_ascii_case(pe)).unwrap_or(false)
+                            )).unwrap_or(false)
+                        }).unwrap_or(false);
+                        // Check if mentioned in title/description
+                        let title = e.summary.as_deref().unwrap_or("");
+                        let in_title = title.to_lowercase().contains(&lower_person);
+                        let in_desc = e.description.as_ref()
+                            .map(|d| d.to_lowercase().contains(&lower_person))
+                            .unwrap_or(false);
+                        
+                        in_attendees || email_match || in_title || in_desc
+                    })
+                    .collect();
+                
+                if filtered.is_empty() {
+                    Ok(HandleResult::Handled(format!("📅 No upcoming meetings found with {}.", person)))
+                } else {
+                    let mut output = format!("📅 Meetings with {} ({}):\n", person, filtered.len());
+                    for event in filtered {
+                        output.push_str(&format!("{}\n", event.display()));
+                    }
+                    Ok(HandleResult::Handled(output))
+                }
+            }
+            Err(e) => Ok(HandleResult::Error(format!("Could not fetch calendar: {}", e)))
+        }
+    }
+
+    /// Handle calendar query for events about a topic
+    async fn handle_calendar_topic(&self, client: &GoogleCalendarClient, topic: &str) -> Result<HandleResult> {
+        match client.get_upcoming_events(30).await {
+            Ok(events) => {
+                // Use LLM to identify relevant events
+                let filtered = self.filter_events_by_topic(&events, topic).await;
+                
+                if filtered.is_empty() {
+                    Ok(HandleResult::Handled(format!("📅 No upcoming events found related to '{}'.", topic)))
+                } else {
+                    let mut output = format!("📅 Events related to '{}' ({}):\n", topic, filtered.len());
+                    for event in filtered {
+                        output.push_str(&format!("{}\n", event.display()));
+                    }
+                    Ok(HandleResult::Handled(output))
+                }
+            }
+            Err(e) => Ok(HandleResult::Error(format!("Could not fetch calendar: {}", e)))
+        }
+    }
+
+    /// Handle calendar query for events with an organization
+    async fn handle_calendar_with_org(&self, client: &GoogleCalendarClient, org: &str) -> Result<HandleResult> {
+        let org_domain = self.infer_org_domain(org);
+        
+        match client.get_upcoming_events(30).await {
+            Ok(events) => {
+                let lower_org = org.to_lowercase();
+                let filtered: Vec<_> = events.iter()
+                    .filter(|e| {
+                        let attendees = e.attendees.as_ref();
+                        // Check attendee emails for org domain
+                        let domain_match = org_domain.as_ref().map(|d| {
+                            attendees.map(|atts| atts.iter().any(|a| 
+                                a.email.as_ref().map(|em| em.to_lowercase().contains(d)).unwrap_or(false)
+                            )).unwrap_or(false)
+                        }).unwrap_or(false);
+                        // Check org name in attendees
+                        let in_attendees = attendees.map(|atts| atts.iter().any(|a| {
+                            a.display_name.as_ref().map(|n| n.to_lowercase().contains(&lower_org)).unwrap_or(false)
+                        })).unwrap_or(false);
+                        // Check if mentioned in title/description
+                        let title = e.summary.as_deref().unwrap_or("");
+                        let in_title = title.to_lowercase().contains(&lower_org);
+                        let in_desc = e.description.as_ref()
+                            .map(|d| d.to_lowercase().contains(&lower_org))
+                            .unwrap_or(false);
+                        
+                        domain_match || in_attendees || in_title || in_desc
+                    })
+                    .collect();
+                
+                if filtered.is_empty() {
+                    Ok(HandleResult::Handled(format!("📅 No upcoming meetings found with {}.", org)))
+                } else {
+                    let mut output = format!("📅 Meetings with {} ({}):\n", org, filtered.len());
+                    for event in filtered {
+                        output.push_str(&format!("{}\n", event.display()));
+                    }
+                    Ok(HandleResult::Handled(output))
+                }
+            }
+            Err(e) => Ok(HandleResult::Error(format!("Could not fetch calendar: {}", e)))
+        }
+    }
+
+    /// Handle complex calendar filter
+    async fn handle_calendar_filter(&self, client: &GoogleCalendarClient, filter: &CalendarFilter) -> Result<HandleResult> {
+        match client.get_upcoming_events(50).await {
+            Ok(events) => {
+                let mut filtered: Vec<_> = events.iter().collect();
+                
+                // Filter by people
+                if !filter.with_people.is_empty() {
+                    filtered.retain(|e| {
+                        let attendees = e.attendees.as_ref();
+                        filter.with_people.iter().any(|person| {
+                            let lower = person.to_lowercase();
+                            attendees.map(|atts| atts.iter().any(|a| {
+                                a.email.as_ref().map(|em| em.to_lowercase().contains(&lower)).unwrap_or(false) ||
+                                a.display_name.as_ref().map(|n| n.to_lowercase().contains(&lower)).unwrap_or(false)
+                            })).unwrap_or(false) ||
+                            e.summary.as_deref().unwrap_or("").to_lowercase().contains(&lower)
+                        })
+                    });
+                }
+                
+                // Filter by organizations
+                if !filter.with_orgs.is_empty() {
+                    filtered.retain(|e| {
+                        let attendees = e.attendees.as_ref();
+                        filter.with_orgs.iter().any(|org| {
+                            let lower = org.to_lowercase();
+                            let domain = self.infer_org_domain(org);
+                            
+                            let domain_match = domain.as_ref().map(|d| {
+                                attendees.map(|atts| atts.iter().any(|a| 
+                                    a.email.as_ref().map(|em| em.to_lowercase().contains(d)).unwrap_or(false)
+                                )).unwrap_or(false)
+                            }).unwrap_or(false);
+                            
+                            domain_match ||
+                            e.summary.as_deref().unwrap_or("").to_lowercase().contains(&lower) ||
+                            e.description.as_ref().map(|d| d.to_lowercase().contains(&lower)).unwrap_or(false)
+                        })
+                    });
+                }
+                
+                // Filter by topics using keyword matching
+                if !filter.topics.is_empty() {
+                    filtered.retain(|e| {
+                        let content = format!("{} {}", 
+                            e.summary.as_deref().unwrap_or(""),
+                            e.description.as_deref().unwrap_or("")
+                        ).to_lowercase();
+                        filter.topics.iter().any(|t| content.contains(&t.to_lowercase()))
+                    });
+                }
+                
+                // Filter by date range - compare start times
+                if let Some(after) = &filter.after {
+                    filtered.retain(|e| {
+                        e.start_time().map(|t| t.with_timezone(&chrono::Utc) >= *after).unwrap_or(true)
+                    });
+                }
+                if let Some(before) = &filter.before {
+                    filtered.retain(|e| {
+                        e.start_time().map(|t| t.with_timezone(&chrono::Utc) <= *before).unwrap_or(true)
+                    });
+                }
+                
+                // Apply limit
+                if filter.limit > 0 && filtered.len() > filter.limit {
+                    filtered.truncate(filter.limit);
+                }
+                
+                if filtered.is_empty() {
+                    Ok(HandleResult::Handled("📅 No events found matching your criteria.".to_string()))
+                } else {
+                    let mut output = format!("📅 Filtered Events ({}):\n", filtered.len());
+                    for event in filtered {
+                        output.push_str(&format!("{}\n", event.display()));
+                    }
+                    Ok(HandleResult::Handled(output))
+                }
+            }
+            Err(e) => Ok(HandleResult::Error(format!("Could not fetch calendar: {}", e)))
+        }
+    }
+
+    /// Filter events by topic using LLM
+    async fn filter_events_by_topic(&self, events: &[crate::integrations::google::calendar::GCalEvent], topic: &str) -> Vec<crate::integrations::google::calendar::GCalEvent> {
+        let event_list: Vec<String> = events.iter().enumerate()
+            .map(|(i, e)| format!("{}. {} | {}", 
+                i + 1, 
+                e.summary.as_deref().unwrap_or("(No title)"),
+                e.description.as_deref().unwrap_or("").chars().take(100).collect::<String>()))
+            .collect();
+        
+        let prompt = format!(
+            r#"Given these calendar events, identify which ones are related to the topic "{}".
+Return ONLY a JSON array of the event numbers (1-indexed) that are relevant.
+
+Events:
+{}
+
+Respond with just the JSON array, e.g., [1, 3, 5] or [] if none are relevant:"#,
+            topic,
+            event_list.join("\n")
+        );
+        
+        match self.llm.query(&prompt).await {
+            Ok(response) => {
+                if let Some(start) = response.find('[') {
+                    if let Some(end) = response.rfind(']') {
+                        let json_str = &response[start..=end];
+                        if let Ok(indices) = serde_json::from_str::<Vec<usize>>(json_str) {
+                            return indices.iter()
+                                .filter_map(|&i| events.get(i.saturating_sub(1)).cloned())
+                                .collect();
+                        }
+                    }
+                }
+                events.to_vec()
+            }
+            Err(_) => events.to_vec()
         }
     }
 

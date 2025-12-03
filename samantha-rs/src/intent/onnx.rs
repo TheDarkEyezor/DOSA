@@ -393,6 +393,55 @@ impl OnnxClassifier {
     fn infer_calendar_query_type(&self, input: &str, slots: &[ExtractedSlot]) -> CalendarQueryType {
         let lower = input.to_lowercase();
 
+        // Check for person-based queries ("meetings with John", "calendar with Sarah")
+        let with_patterns = ["with ", "involving ", "including "];
+        for pattern in with_patterns {
+            if lower.contains(pattern) {
+                // Check if we have a person in slots
+                for slot in slots {
+                    if slot.label == "PER" {
+                        return CalendarQueryType::WithPerson(slot.value.clone());
+                    }
+                }
+                // Extract person name from pattern
+                if let Some(pos) = lower.find(pattern) {
+                    let after = &input[pos + pattern.len()..];
+                    let person: String = after.split_whitespace()
+                        .take(3)  // Take up to 3 words for name
+                        .collect::<Vec<_>>()
+                        .join(" ");
+                    if !person.is_empty() {
+                        return CalendarQueryType::WithPerson(person);
+                    }
+                }
+            }
+        }
+
+        // Check for organization queries ("meetings with Google", "calendar for Microsoft")
+        for slot in slots {
+            if slot.label == "ORG" {
+                return CalendarQueryType::WithOrg(slot.value.clone());
+            }
+        }
+
+        // Check for topic-based queries ("meetings about the project", "events related to AI")
+        let topic_patterns = ["about ", "related to ", "regarding ", "concerning ", "on "];
+        for pattern in topic_patterns {
+            if lower.contains(pattern) {
+                if let Some(pos) = lower.find(pattern) {
+                    let after = &input[pos + pattern.len()..];
+                    // Extract topic - skip common words
+                    let topic = after.trim()
+                        .trim_start_matches("the ")
+                        .trim_start_matches("a ")
+                        .trim_start_matches("my ");
+                    if !topic.is_empty() {
+                        return CalendarQueryType::Topic(topic.to_string());
+                    }
+                }
+            }
+        }
+
         // Check slots for DATE
         for slot in slots {
             if slot.label == "DATE" {
@@ -430,9 +479,61 @@ impl OnnxClassifier {
             if slot.label == "PER" && lower.contains("from") {
                 return EmailQueryType::From(slot.value.clone());
             }
+            if slot.label == "PER" && (lower.contains("about") || lower.contains("involving") || lower.contains("with")) {
+                return EmailQueryType::AboutPerson(slot.value.clone());
+            }
         }
 
-        if lower.contains("unread") || lower.contains("new") {
+        // Check for organization-based queries
+        for slot in slots {
+            if slot.label == "ORG" {
+                if lower.contains("from") {
+                    // "emails from Google" - use From with org name search
+                    return EmailQueryType::AboutOrg(slot.value.clone());
+                } else if lower.contains("about") || lower.contains("related to") || lower.contains("involving") {
+                    return EmailQueryType::AboutOrg(slot.value.clone());
+                }
+            }
+        }
+
+        // Check for "from X" without ORG slot
+        if lower.contains("from ") {
+            if let Some(pos) = lower.find("from ") {
+                let after = &input[pos + 5..].trim();
+                let name: String = after.split_whitespace()
+                    .take(3)
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                if !name.is_empty() {
+                    return EmailQueryType::From(name);
+                }
+            }
+        }
+
+        // Check for topic-based queries
+        let topic_patterns = [
+            "about ", "related to ", "regarding ", "concerning ", "mentioning ", "on the topic of ",
+        ];
+        for pattern in topic_patterns {
+            if lower.contains(pattern) {
+                if let Some(idx) = lower.find(pattern) {
+                    let after = &lower[idx + pattern.len()..];
+                    let stop_words = ["?", ".", "!", ","];
+                    let mut end_idx = after.len();
+                    for stop in stop_words {
+                        if let Some(stop_idx) = after.find(stop) {
+                            end_idx = end_idx.min(stop_idx);
+                        }
+                    }
+                    let topic = after[..end_idx].trim();
+                    if !topic.is_empty() {
+                        return EmailQueryType::Topic(topic.to_string());
+                    }
+                }
+            }
+        }
+
+        if lower.contains("unread") || (lower.contains("new") && lower.contains("email")) {
             EmailQueryType::Unread
         } else if lower.contains("summary") || lower.contains("summarize") {
             EmailQueryType::Summary

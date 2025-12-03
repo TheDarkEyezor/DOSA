@@ -1,0 +1,589 @@
+{"text": "Who is the president of Warner Bros?", "intent": "web_search", "slots": [{"start": 24, "end": 35, "label": "ORG", "text": "Warner Bros"}]}
+{"text": "Stock price Warner Bros", "intent": "web_search", "slots": [{"start": 12, "end": 23, "label": "ORG", "text": "Warner Bros"}]}
+{"text": "What's Goldman Sachs's stock price?", "intent": "web_search", "slots": [{"start": 7, "end": 20, "label": "ORG", "text": "Goldman Sachs"}]}
+{"text": "show me Imperial College London emails", "intent": "email_query", "slots": [{"start": 8, "end": 31, "label": "ORG", "text": "Imperial College London"}]}
+{"text": "Adele net worth", "intent": "web_search", "slots": [{"start": 0, "end": 5, "label": "PER", "text": "Adele"}]}
+{"text": "How hot is it in Auckland?", "intent": "web_search", "slots": [{"start": 17, "end": 25, "label": "LOC", "text": "Auckland"}]}
+{"text": "Move my meeting with Michael Singh to today", "intent": "calendar_update", "slots": [{"start": 21, "end": 34, "label": "PER", "text": "Michael Singh"}, {"start": 38, "end": 43, "label": "DATE", "text": "today"}]}
+{"text": "What's Shopify worth?", "intent": "web_search", "slots": [{"start": 7, "end": 14, "label": "ORG", "text": "Shopify"}]}
+{"text": "Learn about electric vehicles", "intent": "web_search", "slots": [{"start": 12, "end": 29, "label": "EVENT", "text": "electric vehicles"}]}
+{"text": "Weather in Seoul", "intent": "web_search", "slots": [{"start": 11, "end": 16, "label": "LOC", "text": "Seoul"}]}
+{"text": "Show contacts", "intent": "knowledge_query", "slots": []}
+{"text": "/link John works_at Acme", "intent": "command", "slots": []}
+{"text": "General Motors stock", "intent": "web_search", "slots": [{"start": 0, "end": 14, "label": "ORG", "text": "General Motors"}]}
+{"text": "Let's have a interview with Alice at 10:30am", "intent": "calendar_create", "slots": [{"start": 13, "end": 22, "label": "EVENT", "text": "interview"}, {"start": 28, "end": 33, "label": "PER", "text": "Alice"}, {"start": 37, "end": 44, "label": "TIME", "text": "10:30am"}]}
+{"text": "Who is the president of Intel?", "intent": "web_search", "slots": [{"start": 24, "end": 29, "label": "ORG", "text": "Intel"}]}
+{"text": "Adobe CEO", "intent": "web_search", "slots": [{"start": 0, "end": 5, "label": "ORG", "text": "Adobe"}]}
+{"text": "How did Boeing stock do today?", "intent": "web_search", "slots": [{"start": 8, "end": 14, "label": "ORG", "text": "Boeing"}]}
+{"text": "People from TechStart Inc", "intent": "knowledge_query", "slots": [{"start": 12, "end": 25, "label": "ORG", "text": "TechStart Inc"}]}
+{"text": "Anyone with databases skills?", "intent": "knowledge_query", "slots": []}
+{"text": "Best restaurants in Tokyo", "intent": "web_search", "slots": [{"start": 20, "end": 25, "label": "LOC", "text": "Tokyo"}]}
+{"text": "Create a one-on-one with Emily tomorrow at in the morning", "intent": "calendar_create", "slots": [{"start": 9, "end": 19, "label": "EVENT", "text": "one-on-one"}, {"start": 25, "end": 30, "label": "PER", "text": "Emily"}, {"start": 31, "end": 39, "label": "DATE", "text": "tomorrow"}, {"start": 43, "end": 57, "label": "TIME", "text": "in the morning"}]}
+{"text": "How is McDonald's stock doing?", "intent": "web_search", "slots": [{"start": 7, "end": 17, "label": "ORG", "text": "McDonald's"}]}
+{"text": "Best budget phone", "intent": "web_search", "slots": []}
+{"text": "My contacts at Meta", "intent": "knowledge_query", "slots": [{"start": 15, "end": 19, "label": "ORG", "text": "Meta"}]}
+{"text": "Places to visit in Berlin", "intent": "web_search", "slots": [{"start": 19, "end": 25, "label": "LOC", "text": "Berlin"}]}
+{"text": "What's the weather like in Madrid?", "intent": "web_search", "slots": [{"start": 27, "end": 33, "label": "LOC", "text": "Madrid"}]}
+{"text": "Hotels in Los Angeles", "intent": "web_search", "slots": [{"start": 10, "end": 21, "label": "LOC", "text": "Los Angeles"}]}
+{"text": "What is interest rate?", "intent": "web_search", "slots": []}
+{"text": "What is robotics?", "intent": "web_search", "slots": [{"start": 8, "end": 16, "label": "EVENT", "text": "robotics"}]}
+{"text": "What did Warren Buffett do?", "intent": "web_search", "slots": [{"start": 9, "end": 23, "label": "PER", "text": "Warren Buffett"}]}
+{"text": "I understand", "intent": "conversation", "slots": []}
+{"text": "Anyone working at Amazon?", "intent": "knowledge_query", "slots": [{"start": 18, "end": 24, "label": "ORG", "text": "Amazon"}]}
+{"text": "Stripe founder", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Stripe"}]}
+{"text": "My address book", "intent": "knowledge_query", "slots": []}
+{"text": "Define quantum", "intent": "web_search", "slots": []}
+{"text": "Contacts from Oxford", "intent": "knowledge_query", "slots": []}
+{"text": "Lunch with Raj Jones next Monday at 3pm", "intent": "calendar_create", "slots": [{"start": 11, "end": 20, "label": "PER", "text": "Raj Jones"}, {"start": 21, "end": 32, "label": "DATE", "text": "next Monday"}, {"start": 36, "end": 39, "label": "TIME", "text": "3pm"}]}
+{"text": "Denzel Washington net worth", "intent": "web_search", "slots": [{"start": 0, "end": 17, "label": "PER", "text": "Denzel Washington"}]}
+{"text": "Who do I know from Columbia?", "intent": "knowledge_query", "slots": []}
+{"text": "Arrange a sync at downtown today", "intent": "calendar_create", "slots": [{"start": 10, "end": 14, "label": "EVENT", "text": "sync"}, {"start": 18, "end": 26, "label": "LOC", "text": "downtown"}, {"start": 27, "end": 32, "label": "DATE", "text": "today"}]}
+{"text": "What's the deal with Michael Silva?", "intent": "knowledge_query", "slots": [{"start": 21, "end": 34, "label": "PER", "text": "Michael Silva"}]}
+{"text": "Who is Neha Patel?", "intent": "knowledge_query", "slots": [{"start": 7, "end": 17, "label": "PER", "text": "Neha Patel"}]}
+{"text": "Things to do in Chicago", "intent": "web_search", "slots": [{"start": 16, "end": 23, "label": "LOC", "text": "Chicago"}]}
+{"text": "How hot is it in Madrid?", "intent": "web_search", "slots": [{"start": 17, "end": 23, "label": "LOC", "text": "Madrid"}]}
+{"text": "Can you tell me about climate change?", "intent": "web_search", "slots": [{"start": 22, "end": 36, "label": "EVENT", "text": "climate change"}]}
+{"text": "What's the stock price of Meta?", "intent": "web_search", "slots": [{"start": 26, "end": 30, "label": "ORG", "text": "Meta"}]}
+{"text": "Define algorithm", "intent": "web_search", "slots": []}
+{"text": "Who runs IBM?", "intent": "web_search", "slots": [{"start": 9, "end": 12, "label": "ORG", "text": "IBM"}]}
+{"text": "Check Samsung stock", "intent": "web_search", "slots": [{"start": 6, "end": 13, "label": "ORG", "text": "Samsung"}]}
+{"text": "Who founded Google?", "intent": "web_search", "slots": [{"start": 12, "end": 18, "label": "ORG", "text": "Google"}]}
+{"text": "Twitter founder", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "ORG", "text": "Twitter"}]}
+{"text": "Anyone familiar with SQL?", "intent": "knowledge_query", "slots": []}
+{"text": "Schedule lunch with Chen Silva at downtown the day after tomorrow", "intent": "calendar_create", "slots": [{"start": 9, "end": 14, "label": "EVENT", "text": "lunch"}, {"start": 20, "end": 30, "label": "PER", "text": "Chen Silva"}, {"start": 34, "end": 42, "label": "LOC", "text": "downtown"}, {"start": 43, "end": 65, "label": "DATE", "text": "the day after tomorrow"}]}
+{"text": "Remember that David's email is david@example.com", "intent": "contact_update", "slots": [{"start": 14, "end": 19, "label": "PER", "text": "David"}, {"start": 31, "end": 48, "label": "EMAIL", "text": "david@example.com"}]}
+{"text": "What's the stock price of Adobe?", "intent": "web_search", "slots": [{"start": 26, "end": 31, "label": "ORG", "text": "Adobe"}]}
+{"text": "Tell me about Sam Altman", "intent": "web_search", "slots": [{"start": 14, "end": 24, "label": "PER", "text": "Sam Altman"}]}
+{"text": "Book my office for a demo the day after tomorrow at 5pm", "intent": "calendar_create", "slots": [{"start": 5, "end": 14, "label": "LOC", "text": "my office"}, {"start": 21, "end": 25, "label": "EVENT", "text": "demo"}, {"start": 26, "end": 48, "label": "DATE", "text": "the day after tomorrow"}, {"start": 52, "end": 55, "label": "TIME", "text": "5pm"}]}
+{"text": "How to make coffee?", "intent": "web_search", "slots": []}
+{"text": "Tell me about Stephen Hawking", "intent": "web_search", "slots": [{"start": 14, "end": 29, "label": "PER", "text": "Stephen Hawking"}]}
+{"text": "Add Sarah, she works at Oxford", "intent": "contact_update", "slots": [{"start": 4, "end": 9, "label": "PER", "text": "Sarah"}, {"start": 24, "end": 30, "label": "ORG", "text": "Oxford"}]}
+{"text": "What's the weather in Singapore?", "intent": "web_search", "slots": [{"start": 22, "end": 31, "label": "LOC", "text": "Singapore"}]}
+{"text": "Notify the interview attendees about the change", "intent": "email_attendees", "slots": [{"start": 11, "end": 20, "label": "EVENT", "text": "interview"}]}
+{"text": "Meaning of democracy", "intent": "web_search", "slots": []}
+{"text": "What skills does Alice Li have?", "intent": "knowledge_query", "slots": [{"start": 17, "end": 25, "label": "PER", "text": "Alice Li"}]}
+{"text": "Find people who studied at Stanford", "intent": "knowledge_query", "slots": []}
+{"text": "Will it rain in Germany?", "intent": "web_search", "slots": [{"start": 16, "end": 23, "label": "LOC", "text": "Germany"}]}
+{"text": "Weather forecast for Mumbai", "intent": "web_search", "slots": [{"start": 21, "end": 27, "label": "LOC", "text": "Mumbai"}]}
+{"text": "Stock price General Motors", "intent": "web_search", "slots": [{"start": 12, "end": 26, "label": "ORG", "text": "General Motors"}]}
+{"text": "How did Toyota stock do today?", "intent": "web_search", "slots": [{"start": 8, "end": 14, "label": "ORG", "text": "Toyota"}]}
+{"text": "Where is LeBron James from?", "intent": "web_search", "slots": [{"start": 9, "end": 21, "label": "PER", "text": "LeBron James"}]}
+{"text": "Bangkok forecast", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "LOC", "text": "Bangkok"}]}
+{"text": "What's Warner Bros worth?", "intent": "web_search", "slots": [{"start": 7, "end": 18, "label": "ORG", "text": "Warner Bros"}]}
+{"text": "Any new emails?", "intent": "email_query", "slots": []}
+{"text": "Push the catch-up back to 2:30pm", "intent": "calendar_update", "slots": [{"start": 9, "end": 17, "label": "EVENT", "text": "catch-up"}, {"start": 26, "end": 32, "label": "TIME", "text": "2:30pm"}]}
+{"text": "Why is Adele famous?", "intent": "web_search", "slots": [{"start": 7, "end": 12, "label": "PER", "text": "Adele"}]}
+{"text": "Show me Carlos Mathew's team", "intent": "knowledge_query", "slots": [{"start": 8, "end": 21, "label": "PER", "text": "Carlos Mathew"}]}
+{"text": "What's my connection to William Santos?", "intent": "knowledge_query", "slots": [{"start": 24, "end": 38, "label": "PER", "text": "William Santos"}]}
+{"text": "Who founded Amazon?", "intent": "web_search", "slots": [{"start": 12, "end": 18, "label": "ORG", "text": "Amazon"}]}
+{"text": "How to draw?", "intent": "web_search", "slots": []}
+{"text": "Schedule a 1:1 with Sarah Davis Sunday", "intent": "calendar_create", "slots": [{"start": 11, "end": 14, "label": "EVENT", "text": "1:1"}, {"start": 20, "end": 31, "label": "PER", "text": "Sarah Davis"}, {"start": 32, "end": 38, "label": "DATE", "text": "Sunday"}]}
+{"text": "Who is the founder of Target?", "intent": "web_search", "slots": [{"start": 22, "end": 28, "label": "ORG", "text": "Target"}]}
+{"text": "Notify the retrospective attendees about the change", "intent": "email_attendees", "slots": [{"start": 11, "end": 24, "label": "EVENT", "text": "retrospective"}]}
+{"text": "What's the temperature in Tokyo?", "intent": "web_search", "slots": [{"start": 26, "end": 31, "label": "LOC", "text": "Tokyo"}]}
+{"text": "Should I buy Tesla stock?", "intent": "web_search", "slots": [{"start": 13, "end": 18, "label": "ORG", "text": "Tesla"}]}
+{"text": "Weather in Tokyo", "intent": "web_search", "slots": [{"start": 11, "end": 16, "label": "LOC", "text": "Tokyo"}]}
+{"text": "Info on nuclear fusion", "intent": "web_search", "slots": [{"start": 8, "end": 22, "label": "EVENT", "text": "nuclear fusion"}]}
+{"text": "Who is in charge of Microsoft?", "intent": "web_search", "slots": [{"start": 20, "end": 29, "label": "ORG", "text": "Microsoft"}]}
+{"text": "Guide to investing", "intent": "web_search", "slots": []}
+{"text": "What is Disney trading at?", "intent": "web_search", "slots": [{"start": 8, "end": 14, "label": "ORG", "text": "Disney"}]}
+{"text": "Explain capitalism", "intent": "web_search", "slots": []}
+{"text": "Mastercard founder", "intent": "web_search", "slots": [{"start": 0, "end": 10, "label": "ORG", "text": "Mastercard"}]}
+{"text": "Add Ashley, she works at Acme Corp", "intent": "contact_update", "slots": [{"start": 4, "end": 10, "label": "PER", "text": "Ashley"}, {"start": 25, "end": 34, "label": "ORG", "text": "Acme Corp"}]}
+{"text": "Biography of Satya Nadella", "intent": "web_search", "slots": [{"start": 13, "end": 26, "label": "PER", "text": "Satya Nadella"}]}
+{"text": "Why is Trevor Noah famous?", "intent": "web_search", "slots": [{"start": 7, "end": 18, "label": "PER", "text": "Trevor Noah"}]}
+{"text": "Define blockchain", "intent": "web_search", "slots": []}
+{"text": "Hotels in Dubai", "intent": "web_search", "slots": [{"start": 10, "end": 15, "label": "LOC", "text": "Dubai"}]}
+{"text": "Update the presentation location to the office", "intent": "calendar_update", "slots": [{"start": 11, "end": 23, "label": "EVENT", "text": "presentation"}, {"start": 36, "end": 46, "label": "LOC", "text": "the office"}]}
+{"text": "Info on battery technology", "intent": "web_search", "slots": [{"start": 8, "end": 26, "label": "EVENT", "text": "battery technology"}]}
+{"text": "Seoul weather", "intent": "web_search", "slots": [{"start": 0, "end": 5, "label": "LOC", "text": "Seoul"}]}
+{"text": "Places to visit in Boston", "intent": "web_search", "slots": [{"start": 19, "end": 25, "label": "LOC", "text": "Boston"}]}
+{"text": "What's robotics?", "intent": "web_search", "slots": []}
+{"text": "What's the temperature in London?", "intent": "web_search", "slots": [{"start": 26, "end": 32, "label": "LOC", "text": "London"}]}
+{"text": "Search for Ellen DeGeneres", "intent": "web_search", "slots": [{"start": 11, "end": 26, "label": "PER", "text": "Ellen DeGeneres"}]}
+{"text": "Give me details on Amogh", "intent": "knowledge_query", "slots": [{"start": 19, "end": 24, "label": "PER", "text": "Amogh"}]}
+{"text": "Tell me about Warren Buffett", "intent": "web_search", "slots": [{"start": 14, "end": 28, "label": "PER", "text": "Warren Buffett"}]}
+{"text": "Weather forecast for Rome", "intent": "web_search", "slots": [{"start": 21, "end": 25, "label": "LOC", "text": "Rome"}]}
+{"text": "Who founded Uber?", "intent": "web_search", "slots": [{"start": 12, "end": 16, "label": "ORG", "text": "Uber"}]}
+{"text": "Notify the interview attendees about the change", "intent": "email_attendees", "slots": [{"start": 11, "end": 20, "label": "EVENT", "text": "interview"}]}
+{"text": "Bank of America stock", "intent": "web_search", "slots": [{"start": 0, "end": 15, "label": "ORG", "text": "Bank of America"}]}
+{"text": "Who founded Nvidia?", "intent": "web_search", "slots": [{"start": 12, "end": 18, "label": "ORG", "text": "Nvidia"}]}
+{"text": "Weather in Shanghai", "intent": "web_search", "slots": [{"start": 11, "end": 19, "label": "LOC", "text": "Shanghai"}]}
+{"text": "How old is LeBron James?", "intent": "web_search", "slots": [{"start": 11, "end": 23, "label": "PER", "text": "LeBron James"}]}
+{"text": "Look up web development", "intent": "web_search", "slots": [{"start": 8, "end": 23, "label": "EVENT", "text": "web development"}]}
+{"text": "Google machine learning", "intent": "web_search", "slots": [{"start": 7, "end": 23, "label": "EVENT", "text": "machine learning"}]}
+{"text": "Who leads Warner Bros?", "intent": "web_search", "slots": [{"start": 10, "end": 21, "label": "ORG", "text": "Warner Bros"}]}
+{"text": "List contacts at Netflix", "intent": "knowledge_query", "slots": [{"start": 17, "end": 24, "label": "ORG", "text": "Netflix"}]}
+{"text": "Who did I just add?", "intent": "knowledge_query", "slots": []}
+{"text": "Amazon CEO", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Amazon"}]}
+{"text": "Current weather in Germany", "intent": "web_search", "slots": [{"start": 19, "end": 26, "label": "LOC", "text": "Germany"}]}
+{"text": "Lockheed Martin founder", "intent": "web_search", "slots": [{"start": 0, "end": 15, "label": "ORG", "text": "Lockheed Martin"}]}
+{"text": "meetings with Goldman Sachs", "intent": "calendar_query", "slots": [{"start": 14, "end": 27, "label": "ORG", "text": "Goldman Sachs"}]}
+{"text": "find emails related to expenses", "intent": "email_query", "slots": []}
+{"text": "What's Starbucks worth?", "intent": "web_search", "slots": [{"start": 7, "end": 16, "label": "ORG", "text": "Starbucks"}]}
+{"text": "How is JPMorgan stock doing?", "intent": "web_search", "slots": [{"start": 7, "end": 15, "label": "ORG", "text": "JPMorgan"}]}
+{"text": "Who went to MIT?", "intent": "knowledge_query", "slots": []}
+{"text": "How is AMD stock doing?", "intent": "web_search", "slots": [{"start": 7, "end": 10, "label": "ORG", "text": "AMD"}]}
+{"text": "How much is McDonald's stock?", "intent": "web_search", "slots": [{"start": 12, "end": 22, "label": "ORG", "text": "McDonald's"}]}
+{"text": "How old is Adele?", "intent": "web_search", "slots": [{"start": 11, "end": 16, "label": "PER", "text": "Adele"}]}
+{"text": "Stock price McDonald's", "intent": "web_search", "slots": [{"start": 12, "end": 22, "label": "ORG", "text": "McDonald's"}]}
+{"text": "Research artificial intelligence", "intent": "web_search", "slots": [{"start": 9, "end": 32, "label": "EVENT", "text": "artificial intelligence"}]}
+{"text": "Los Angeles weather", "intent": "web_search", "slots": [{"start": 0, "end": 11, "label": "LOC", "text": "Los Angeles"}]}
+{"text": "Who started Twitter?", "intent": "web_search", "slots": [{"start": 12, "end": 19, "label": "ORG", "text": "Twitter"}]}
+{"text": "How's Stripe stock today?", "intent": "web_search", "slots": [{"start": 6, "end": 12, "label": "ORG", "text": "Stripe"}]}
+{"text": "Things to do in Miami", "intent": "web_search", "slots": [{"start": 16, "end": 21, "label": "LOC", "text": "Miami"}]}
+{"text": "Who is Samsung's CEO?", "intent": "web_search", "slots": [{"start": 7, "end": 14, "label": "ORG", "text": "Samsung"}]}
+{"text": "Who are my contacts?", "intent": "knowledge_query", "slots": []}
+{"text": "Who started Lockheed Martin?", "intent": "web_search", "slots": [{"start": 12, "end": 27, "label": "ORG", "text": "Lockheed Martin"}]}
+{"text": "Definition of phishing", "intent": "web_search", "slots": []}
+{"text": "emails mentioning investment", "intent": "email_query", "slots": []}
+{"text": "How much is Microsoft stock?", "intent": "web_search", "slots": [{"start": 12, "end": 21, "label": "ORG", "text": "Microsoft"}]}
+{"text": "What's stock market?", "intent": "web_search", "slots": []}
+{"text": "Zurich forecast", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "LOC", "text": "Zurich"}]}
+{"text": "How much is Goldman Sachs stock?", "intent": "web_search", "slots": [{"start": 12, "end": 25, "label": "ORG", "text": "Goldman Sachs"}]}
+{"text": "Who is Sony's CEO?", "intent": "web_search", "slots": [{"start": 7, "end": 11, "label": "ORG", "text": "Sony"}]}
+{"text": "How hot is it in Bangkok?", "intent": "web_search", "slots": [{"start": 17, "end": 24, "label": "LOC", "text": "Bangkok"}]}
+{"text": "Tell me about Lisa Gupta", "intent": "knowledge_query", "slots": [{"start": 14, "end": 24, "label": "PER", "text": "Lisa Gupta"}]}
+{"text": "Anyone working at Imperial College London?", "intent": "knowledge_query", "slots": [{"start": 18, "end": 41, "label": "ORG", "text": "Imperial College London"}]}
+{"text": "How's the weather in Phoenix?", "intent": "web_search", "slots": [{"start": 21, "end": 28, "label": "LOC", "text": "Phoenix"}]}
+{"text": "How is Cisco stock doing?", "intent": "web_search", "slots": [{"start": 7, "end": 12, "label": "ORG", "text": "Cisco"}]}
+{"text": "What company does Adele run?", "intent": "web_search", "slots": [{"start": 18, "end": 23, "label": "PER", "text": "Adele"}]}
+{"text": "Dessert recipes", "intent": "web_search", "slots": []}
+{"text": "Known people", "intent": "knowledge_query", "slots": []}
+{"text": "Set up a standup with Yuki Hernandez at 1pm", "intent": "calendar_create", "slots": [{"start": 9, "end": 16, "label": "EVENT", "text": "standup"}, {"start": 22, "end": 36, "label": "PER", "text": "Yuki Hernandez"}, {"start": 40, "end": 43, "label": "TIME", "text": "1pm"}]}
+{"text": "what emails did I get about interviews", "intent": "email_query", "slots": []}
+{"text": "Who is Sundar Pichai?", "intent": "web_search", "slots": [{"start": 7, "end": 20, "label": "PER", "text": "Sundar Pichai"}]}
+{"text": "Hmm", "intent": "conversation", "slots": []}
+{"text": "How do I know Yuki?", "intent": "knowledge_query", "slots": [{"start": 14, "end": 18, "label": "PER", "text": "Yuki"}]}
+{"text": "What's the weather in Paris?", "intent": "web_search", "slots": [{"start": 22, "end": 27, "label": "LOC", "text": "Paris"}]}
+{"text": "How did Oracle stock do today?", "intent": "web_search", "slots": [{"start": 8, "end": 14, "label": "ORG", "text": "Oracle"}]}
+{"text": "find emails related to clients", "intent": "email_query", "slots": []}
+{"text": "Twitter share price", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "ORG", "text": "Twitter"}]}
+{"text": "How does augmented reality work?", "intent": "web_search", "slots": [{"start": 9, "end": 26, "label": "EVENT", "text": "augmented reality"}]}
+{"text": "Reply to Wei's email", "intent": "email_reply", "slots": [{"start": 9, "end": 12, "label": "PER", "text": "Wei"}]}
+{"text": "Remove Saturday's review", "intent": "calendar_delete", "slots": [{"start": 15, "end": 21, "label": "EVENT", "text": "review"}, {"start": 7, "end": 15, "label": "DATE", "text": "Saturday"}]}
+{"text": "Weather forecast for S\u00e3o Paulo", "intent": "web_search", "slots": [{"start": 21, "end": 30, "label": "LOC", "text": "S\u00e3o Paulo"}]}
+{"text": "Who is Larry Page?", "intent": "web_search", "slots": [{"start": 7, "end": 17, "label": "PER", "text": "Larry Page"}]}
+{"text": "Update the sync location to the lobby", "intent": "calendar_update", "slots": [{"start": 11, "end": 15, "label": "EVENT", "text": "sync"}, {"start": 28, "end": 37, "label": "LOC", "text": "the lobby"}]}
+{"text": "What is James's email?", "intent": "knowledge_query", "slots": [{"start": 8, "end": 13, "label": "PER", "text": "James"}]}
+{"text": "What can you tell me about Carlos?", "intent": "knowledge_query", "slots": [{"start": 27, "end": 33, "label": "PER", "text": "Carlos"}]}
+{"text": "Learn about blockchain", "intent": "web_search", "slots": [{"start": 12, "end": 22, "label": "EVENT", "text": "blockchain"}]}
+{"text": "Is it cold in Buenos Aires?", "intent": "web_search", "slots": [{"start": 14, "end": 26, "label": "LOC", "text": "Buenos Aires"}]}
+{"text": "Should I buy Ford stock?", "intent": "web_search", "slots": [{"start": 13, "end": 17, "label": "ORG", "text": "Ford"}]}
+{"text": "calendar with Apple", "intent": "calendar_query", "slots": [{"start": 14, "end": 19, "label": "ORG", "text": "Apple"}]}
+{"text": "Weather forecast for Montreal", "intent": "web_search", "slots": [{"start": 21, "end": 29, "label": "LOC", "text": "Montreal"}]}
+{"text": "Plan a coffee for this week with Sarah", "intent": "calendar_create", "slots": [{"start": 7, "end": 13, "label": "EVENT", "text": "coffee"}, {"start": 18, "end": 27, "label": "DATE", "text": "this week"}, {"start": 33, "end": 38, "label": "PER", "text": "Sarah"}]}
+{"text": "Mark Zuckerberg net worth", "intent": "web_search", "slots": [{"start": 0, "end": 15, "label": "PER", "text": "Mark Zuckerberg"}]}
+{"text": "What's the temperature in Los Angeles?", "intent": "web_search", "slots": [{"start": 26, "end": 37, "label": "LOC", "text": "Los Angeles"}]}
+{"text": "How's Toyota stock today?", "intent": "web_search", "slots": [{"start": 6, "end": 12, "label": "ORG", "text": "Toyota"}]}
+{"text": "Airbnb founder", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Airbnb"}]}
+{"text": "Who started Google?", "intent": "web_search", "slots": [{"start": 12, "end": 18, "label": "ORG", "text": "Google"}]}
+{"text": "Email everyone about the lunch change", "intent": "email_attendees", "slots": [{"start": 25, "end": 30, "label": "EVENT", "text": "lunch"}]}
+{"text": "What's on my calendar this Friday?", "intent": "calendar_query", "slots": [{"start": 22, "end": 33, "label": "DATE", "text": "this Friday"}]}
+{"text": "Who do I know at Google?", "intent": "knowledge_query", "slots": [{"start": 17, "end": 23, "label": "ORG", "text": "Google"}]}
+{"text": "How cold is it in S\u00e3o Paulo?", "intent": "web_search", "slots": [{"start": 18, "end": 27, "label": "LOC", "text": "S\u00e3o Paulo"}]}
+{"text": "Add Hiroshi Gupta, she works at Goldman Sachs", "intent": "contact_update", "slots": [{"start": 4, "end": 17, "label": "PER", "text": "Hiroshi Gupta"}, {"start": 32, "end": 45, "label": "ORG", "text": "Goldman Sachs"}]}
+{"text": "Why is Satya Nadella famous?", "intent": "web_search", "slots": [{"start": 7, "end": 20, "label": "PER", "text": "Satya Nadella"}]}
+{"text": "OpenAI stock price", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "OpenAI"}]}
+{"text": "What's Salesforce worth?", "intent": "web_search", "slots": [{"start": 7, "end": 17, "label": "ORG", "text": "Salesforce"}]}
+{"text": "What does Leonardo DiCaprio do?", "intent": "web_search", "slots": [{"start": 10, "end": 27, "label": "PER", "text": "Leonardo DiCaprio"}]}
+{"text": "What's the weather in Phoenix?", "intent": "web_search", "slots": [{"start": 22, "end": 29, "label": "LOC", "text": "Phoenix"}]}
+{"text": "Show me this week's calendar", "intent": "calendar_query", "slots": []}
+{"text": "Montreal weather", "intent": "web_search", "slots": [{"start": 0, "end": 8, "label": "LOC", "text": "Montreal"}]}
+{"text": "do I have emails about strategy", "intent": "email_query", "slots": []}
+{"text": "Define robotics", "intent": "web_search", "slots": []}
+{"text": "Weather forecast", "intent": "web_search", "slots": []}
+{"text": "How to be successful?", "intent": "web_search", "slots": []}
+{"text": "Should I buy Warner Bros stock?", "intent": "web_search", "slots": [{"start": 13, "end": 24, "label": "ORG", "text": "Warner Bros"}]}
+{"text": "What is Dario Amodei known for?", "intent": "web_search", "slots": [{"start": 8, "end": 20, "label": "PER", "text": "Dario Amodei"}]}
+{"text": "Learn about cloud computing", "intent": "web_search", "slots": [{"start": 12, "end": 27, "label": "EVENT", "text": "cloud computing"}]}
+{"text": "Look up computer vision", "intent": "web_search", "slots": [{"start": 8, "end": 23, "label": "EVENT", "text": "computer vision"}]}
+{"text": "Let's have a review with James Li at 9am", "intent": "calendar_create", "slots": [{"start": 13, "end": 19, "label": "EVENT", "text": "review"}, {"start": 25, "end": 33, "label": "PER", "text": "James Li"}, {"start": 37, "end": 40, "label": "TIME", "text": "9am"}]}
+{"text": "Can you tell me about microservices?", "intent": "web_search", "slots": [{"start": 22, "end": 35, "label": "EVENT", "text": "microservices"}]}
+{"text": "Arjun Yamamoto's position", "intent": "knowledge_query", "slots": [{"start": 0, "end": 14, "label": "PER", "text": "Arjun Yamamoto"}]}
+{"text": "What does Elon Musk do?", "intent": "web_search", "slots": [{"start": 10, "end": 19, "label": "PER", "text": "Elon Musk"}]}
+{"text": "Research natural language processing", "intent": "web_search", "slots": [{"start": 9, "end": 36, "label": "EVENT", "text": "natural language processing"}]}
+{"text": "What is Cristiano Ronaldo known for?", "intent": "web_search", "slots": [{"start": 8, "end": 25, "label": "PER", "text": "Cristiano Ronaldo"}]}
+{"text": "Who leads Visa?", "intent": "web_search", "slots": [{"start": 10, "end": 14, "label": "ORG", "text": "Visa"}]}
+{"text": "Who has experience with TypeScript?", "intent": "knowledge_query", "slots": []}
+{"text": "What company does Stephen Hawking run?", "intent": "web_search", "slots": [{"start": 18, "end": 33, "label": "PER", "text": "Stephen Hawking"}]}
+{"text": "How cold is it in Atlanta?", "intent": "web_search", "slots": [{"start": 18, "end": 25, "label": "LOC", "text": "Atlanta"}]}
+{"text": "List everyone", "intent": "knowledge_query", "slots": []}
+{"text": "what emails are about shipping", "intent": "email_query", "slots": []}
+{"text": "What is Apple trading at?", "intent": "web_search", "slots": [{"start": 8, "end": 13, "label": "ORG", "text": "Apple"}]}
+{"text": "Meaning of malware", "intent": "web_search", "slots": []}
+{"text": "Connections at Meta", "intent": "knowledge_query", "slots": [{"start": 15, "end": 19, "label": "ORG", "text": "Meta"}]}
+{"text": "Neha is a colleague at Netflix", "intent": "contact_update", "slots": [{"start": 0, "end": 4, "label": "PER", "text": "Neha"}, {"start": 23, "end": 30, "label": "ORG", "text": "Netflix"}]}
+{"text": "Who is the president of Nintendo?", "intent": "web_search", "slots": [{"start": 24, "end": 32, "label": "ORG", "text": "Nintendo"}]}
+{"text": "What's Honda worth?", "intent": "web_search", "slots": [{"start": 7, "end": 12, "label": "ORG", "text": "Honda"}]}
+{"text": "Adobe founder", "intent": "web_search", "slots": [{"start": 0, "end": 5, "label": "ORG", "text": "Adobe"}]}
+{"text": "Research blockchain", "intent": "web_search", "slots": [{"start": 9, "end": 19, "label": "EVENT", "text": "blockchain"}]}
+{"text": "Amazon stock price", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Amazon"}]}
+{"text": "How is Mastercard stock doing?", "intent": "web_search", "slots": [{"start": 7, "end": 17, "label": "ORG", "text": "Mastercard"}]}
+{"text": "meetings with Tesla", "intent": "calendar_query", "slots": [{"start": 14, "end": 19, "label": "ORG", "text": "Tesla"}]}
+{"text": "Who is Warner Bros's CEO?", "intent": "web_search", "slots": [{"start": 7, "end": 18, "label": "ORG", "text": "Warner Bros"}]}
+{"text": "Yuki's email address is yuki@example.com", "intent": "contact_update", "slots": [{"start": 0, "end": 4, "label": "PER", "text": "Yuki"}, {"start": 24, "end": 40, "label": "EMAIL", "text": "yuki@example.com"}]}
+{"text": "What's the stock price of Bank of America?", "intent": "web_search", "slots": [{"start": 26, "end": 41, "label": "ORG", "text": "Bank of America"}]}
+{"text": "Who leads Netflix?", "intent": "web_search", "slots": [{"start": 10, "end": 17, "label": "ORG", "text": "Netflix"}]}
+{"text": "Anyone with cloud computing skills?", "intent": "knowledge_query", "slots": []}
+{"text": "Biography of Kamala Harris", "intent": "web_search", "slots": [{"start": 13, "end": 26, "label": "PER", "text": "Kamala Harris"}]}
+{"text": "AMD CEO", "intent": "web_search", "slots": [{"start": 0, "end": 3, "label": "ORG", "text": "AMD"}]}
+{"text": "what meetings are about product", "intent": "calendar_query", "slots": []}
+{"text": "Who reports to Lisa Jones?", "intent": "knowledge_query", "slots": [{"start": 15, "end": 25, "label": "PER", "text": "Lisa Jones"}]}
+{"text": "What have we got on Hiroshi?", "intent": "knowledge_query", "slots": [{"start": 20, "end": 27, "label": "PER", "text": "Hiroshi"}]}
+{"text": "What did Leonardo DiCaprio do?", "intent": "web_search", "slots": [{"start": 9, "end": 26, "label": "PER", "text": "Leonardo DiCaprio"}]}
+{"text": "Show Goldman Sachs connections", "intent": "knowledge_query", "slots": [{"start": 5, "end": 18, "label": "ORG", "text": "Goldman Sachs"}]}
+{"text": "Who do I know from Harvard?", "intent": "knowledge_query", "slots": []}
+{"text": "Update the sync location to the meeting room", "intent": "calendar_update", "slots": [{"start": 11, "end": 15, "label": "EVENT", "text": "sync"}, {"start": 28, "end": 44, "label": "LOC", "text": "the meeting room"}]}
+{"text": "Visa share price", "intent": "web_search", "slots": [{"start": 0, "end": 4, "label": "ORG", "text": "Visa"}]}
+{"text": "News about solar energy", "intent": "web_search", "slots": [{"start": 11, "end": 23, "label": "EVENT", "text": "solar energy"}]}
+{"text": "Who works at GlobalTech?", "intent": "knowledge_query", "slots": [{"start": 13, "end": 23, "label": "ORG", "text": "GlobalTech"}]}
+{"text": "Who leads Sony?", "intent": "web_search", "slots": [{"start": 10, "end": 14, "label": "ORG", "text": "Sony"}]}
+{"text": "What's the weather like in Lagos?", "intent": "web_search", "slots": [{"start": 27, "end": 32, "label": "LOC", "text": "Lagos"}]}
+{"text": "Find someone who knows accounting", "intent": "knowledge_query", "slots": []}
+{"text": "What's JPMorgan worth?", "intent": "web_search", "slots": [{"start": 7, "end": 15, "label": "ORG", "text": "JPMorgan"}]}
+{"text": "How hot is it in Cape Town?", "intent": "web_search", "slots": [{"start": 17, "end": 26, "label": "LOC", "text": "Cape Town"}]}
+{"text": "Who is in charge of Toyota?", "intent": "web_search", "slots": [{"start": 20, "end": 26, "label": "ORG", "text": "Toyota"}]}
+{"text": "Weather in Mumbai", "intent": "web_search", "slots": [{"start": 11, "end": 17, "label": "LOC", "text": "Mumbai"}]}
+{"text": "How hot is it in Sydney?", "intent": "web_search", "slots": [{"start": 17, "end": 23, "label": "LOC", "text": "Sydney"}]}
+{"text": "How's the weather in Atlanta?", "intent": "web_search", "slots": [{"start": 21, "end": 28, "label": "LOC", "text": "Atlanta"}]}
+{"text": "What is Target trading at?", "intent": "web_search", "slots": [{"start": 8, "end": 14, "label": "ORG", "text": "Target"}]}
+{"text": "Microsoft earnings", "intent": "web_search", "slots": [{"start": 0, "end": 9, "label": "ORG", "text": "Microsoft"}]}
+{"text": "Miami weather", "intent": "web_search", "slots": [{"start": 0, "end": 5, "label": "LOC", "text": "Miami"}]}
+{"text": "Where is Stephen Hawking from?", "intent": "web_search", "slots": [{"start": 9, "end": 24, "label": "PER", "text": "Stephen Hawking"}]}
+{"text": "What's the deal with Priya Silva?", "intent": "knowledge_query", "slots": [{"start": 21, "end": 32, "label": "PER", "text": "Priya Silva"}]}
+{"text": "The workshop needs to move to Friday", "intent": "calendar_update", "slots": [{"start": 4, "end": 12, "label": "EVENT", "text": "workshop"}, {"start": 30, "end": 36, "label": "DATE", "text": "Friday"}]}
+{"text": "Things to do in Tokyo", "intent": "web_search", "slots": [{"start": 16, "end": 21, "label": "LOC", "text": "Tokyo"}]}
+{"text": "Best restaurants in Dubai", "intent": "web_search", "slots": [{"start": 20, "end": 25, "label": "LOC", "text": "Dubai"}]}
+{"text": "Bitcoin price", "intent": "web_search", "slots": []}
+{"text": "What's Neha's background?", "intent": "knowledge_query", "slots": [{"start": 7, "end": 11, "label": "PER", "text": "Neha"}]}
+{"text": "What did Albert Einstein do?", "intent": "web_search", "slots": [{"start": 9, "end": 24, "label": "PER", "text": "Albert Einstein"}]}
+{"text": "Google IoT", "intent": "web_search", "slots": [{"start": 7, "end": 10, "label": "EVENT", "text": "IoT"}]}
+{"text": "How cold is it in Lagos?", "intent": "web_search", "slots": [{"start": 18, "end": 23, "label": "LOC", "text": "Lagos"}]}
+{"text": "show me emails related to clients", "intent": "email_query", "slots": []}
+{"text": "Who exactly is Priya Zhang?", "intent": "knowledge_query", "slots": [{"start": 15, "end": 26, "label": "PER", "text": "Priya Zhang"}]}
+{"text": "Who is Nvidia's CEO?", "intent": "web_search", "slots": [{"start": 7, "end": 13, "label": "ORG", "text": "Nvidia"}]}
+{"text": "France forecast", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "LOC", "text": "France"}]}
+{"text": "Who is in charge of Nintendo?", "intent": "web_search", "slots": [{"start": 20, "end": 28, "label": "ORG", "text": "Nintendo"}]}
+{"text": "Who is the president of Target?", "intent": "web_search", "slots": [{"start": 24, "end": 30, "label": "ORG", "text": "Target"}]}
+{"text": "Who has DevOps experience?", "intent": "knowledge_query", "slots": []}
+{"text": "Singapore forecast", "intent": "web_search", "slots": [{"start": 0, "end": 9, "label": "LOC", "text": "Singapore"}]}
+{"text": "Flights to Tokyo", "intent": "web_search", "slots": [{"start": 11, "end": 16, "label": "LOC", "text": "Tokyo"}]}
+{"text": "I want to know about virtual reality", "intent": "web_search", "slots": [{"start": 21, "end": 36, "label": "EVENT", "text": "virtual reality"}]}
+{"text": "do I have any calls with Oxford", "intent": "calendar_query", "slots": [{"start": 25, "end": 31, "label": "ORG", "text": "Oxford"}]}
+{"text": "What's happening with IoT?", "intent": "web_search", "slots": [{"start": 22, "end": 25, "label": "EVENT", "text": "IoT"}]}
+{"text": "Look up Ahmed Kumar", "intent": "knowledge_query", "slots": [{"start": 8, "end": 19, "label": "PER", "text": "Ahmed Kumar"}]}
+{"text": "Check Intel stock", "intent": "web_search", "slots": [{"start": 6, "end": 11, "label": "ORG", "text": "Intel"}]}
+{"text": "Salesforce earnings", "intent": "web_search", "slots": [{"start": 0, "end": 10, "label": "ORG", "text": "Salesforce"}]}
+{"text": "What's the temperature in Madrid?", "intent": "web_search", "slots": [{"start": 26, "end": 32, "label": "LOC", "text": "Madrid"}]}
+{"text": "Twitter stock price", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "ORG", "text": "Twitter"}]}
+{"text": "Who started Goldman Sachs?", "intent": "web_search", "slots": [{"start": 12, "end": 25, "label": "ORG", "text": "Goldman Sachs"}]}
+{"text": "Is it raining in Tokyo?", "intent": "web_search", "slots": [{"start": 17, "end": 22, "label": "LOC", "text": "Tokyo"}]}
+{"text": "Schedule presentation with Yuki at conference room A today", "intent": "calendar_create", "slots": [{"start": 9, "end": 21, "label": "EVENT", "text": "presentation"}, {"start": 27, "end": 31, "label": "PER", "text": "Yuki"}, {"start": 35, "end": 52, "label": "LOC", "text": "conference room A"}, {"start": 53, "end": 58, "label": "DATE", "text": "today"}]}
+{"text": "Change the standup to Thursday at 10:30am", "intent": "calendar_update", "slots": [{"start": 11, "end": 18, "label": "EVENT", "text": "standup"}, {"start": 22, "end": 30, "label": "DATE", "text": "Thursday"}, {"start": 34, "end": 41, "label": "TIME", "text": "10:30am"}]}
+{"text": "Tell me about Jensen Huang", "intent": "web_search", "slots": [{"start": 14, "end": 26, "label": "PER", "text": "Jensen Huang"}]}
+{"text": "Where is Larry Page from?", "intent": "web_search", "slots": [{"start": 9, "end": 19, "label": "PER", "text": "Larry Page"}]}
+{"text": "Tesla stock", "intent": "web_search", "slots": [{"start": 0, "end": 5, "label": "ORG", "text": "Tesla"}]}
+{"text": "Who founded Intel?", "intent": "web_search", "slots": [{"start": 12, "end": 17, "label": "ORG", "text": "Intel"}]}
+{"text": "I need to find Ashley Wang", "intent": "knowledge_query", "slots": [{"start": 15, "end": 26, "label": "PER", "text": "Ashley Wang"}]}
+{"text": "Auckland weather", "intent": "web_search", "slots": [{"start": 0, "end": 8, "label": "LOC", "text": "Auckland"}]}
+{"text": "Define neural network", "intent": "web_search", "slots": []}
+{"text": "I need to cancel the catch-up", "intent": "calendar_delete", "slots": [{"start": 21, "end": 29, "label": "EVENT", "text": "catch-up"}]}
+{"text": "What's happening with electric vehicles?", "intent": "web_search", "slots": [{"start": 22, "end": 39, "label": "EVENT", "text": "electric vehicles"}]}
+{"text": "messages about funding", "intent": "email_query", "slots": []}
+{"text": "Reply to James Tanaka saying I'll be there", "intent": "email_reply", "slots": [{"start": 9, "end": 21, "label": "PER", "text": "James Tanaka"}]}
+{"text": "Will it rain in Paris?", "intent": "web_search", "slots": [{"start": 16, "end": 21, "label": "LOC", "text": "Paris"}]}
+{"text": "Where is Sam Altman from?", "intent": "web_search", "slots": [{"start": 9, "end": 19, "label": "PER", "text": "Sam Altman"}]}
+{"text": "How did McDonald's stock do today?", "intent": "web_search", "slots": [{"start": 8, "end": 18, "label": "ORG", "text": "McDonald's"}]}
+{"text": "How much is Uber stock?", "intent": "web_search", "slots": [{"start": 12, "end": 16, "label": "ORG", "text": "Uber"}]}
+{"text": "What team is Vikram Rodriguez on?", "intent": "knowledge_query", "slots": [{"start": 13, "end": 29, "label": "PER", "text": "Vikram Rodriguez"}]}
+{"text": "Boston travel guide", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "LOC", "text": "Boston"}]}
+{"text": "What's the temperature in S\u00e3o Paulo?", "intent": "web_search", "slots": [{"start": 26, "end": 35, "label": "LOC", "text": "S\u00e3o Paulo"}]}
+{"text": "Do you have info on Yuki?", "intent": "knowledge_query", "slots": [{"start": 20, "end": 24, "label": "PER", "text": "Yuki"}]}
+{"text": "Nvidia CEO", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Nvidia"}]}
+{"text": "Explain algorithm", "intent": "web_search", "slots": []}
+{"text": "Show me Jessica's emails", "intent": "email_query", "slots": [{"start": 8, "end": 15, "label": "PER", "text": "Jessica"}]}
+{"text": "Honda earnings", "intent": "web_search", "slots": [{"start": 0, "end": 5, "label": "ORG", "text": "Honda"}]}
+{"text": "Can you tell me about data science?", "intent": "web_search", "slots": [{"start": 22, "end": 34, "label": "EVENT", "text": "data science"}]}
+{"text": "Flights to Boston", "intent": "web_search", "slots": [{"start": 11, "end": 17, "label": "LOC", "text": "Boston"}]}
+{"text": "Current weather in London", "intent": "web_search", "slots": [{"start": 19, "end": 25, "label": "LOC", "text": "London"}]}
+{"text": "General Motors quarterly results", "intent": "web_search", "slots": [{"start": 0, "end": 14, "label": "ORG", "text": "General Motors"}]}
+{"text": "I want to know about Priya Martinez", "intent": "knowledge_query", "slots": [{"start": 21, "end": 35, "label": "PER", "text": "Priya Martinez"}]}
+{"text": "Why is Kamala Harris famous?", "intent": "web_search", "slots": [{"start": 7, "end": 20, "label": "PER", "text": "Kamala Harris"}]}
+{"text": "How hot is it in Hong Kong?", "intent": "web_search", "slots": [{"start": 17, "end": 26, "label": "LOC", "text": "Hong Kong"}]}
+{"text": "What's firewall?", "intent": "web_search", "slots": []}
+{"text": "Show Goldman Sachs connections", "intent": "knowledge_query", "slots": [{"start": 5, "end": 18, "label": "ORG", "text": "Goldman Sachs"}]}
+{"text": "Is Sony stock up or down?", "intent": "web_search", "slots": [{"start": 3, "end": 7, "label": "ORG", "text": "Sony"}]}
+{"text": "How do I know Rohan?", "intent": "knowledge_query", "slots": [{"start": 14, "end": 19, "label": "PER", "text": "Rohan"}]}
+{"text": "Is Nike stock up or down?", "intent": "web_search", "slots": [{"start": 3, "end": 7, "label": "ORG", "text": "Nike"}]}
+{"text": "Contacts from Yale", "intent": "knowledge_query", "slots": []}
+{"text": "Atlanta weather", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "LOC", "text": "Atlanta"}]}
+{"text": "What's Chen's phone number?", "intent": "knowledge_query", "slots": [{"start": 7, "end": 11, "label": "PER", "text": "Chen"}]}
+{"text": "Tell me about Dario Amodei", "intent": "web_search", "slots": [{"start": 14, "end": 26, "label": "PER", "text": "Dario Amodei"}]}
+{"text": "Network contacts", "intent": "knowledge_query", "slots": []}
+{"text": "Target earnings", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Target"}]}
+{"text": "How to get a passport?", "intent": "web_search", "slots": []}
+{"text": "What's Twitter worth?", "intent": "web_search", "slots": [{"start": 7, "end": 14, "label": "ORG", "text": "Twitter"}]}
+{"text": "What did Donald Trump do?", "intent": "web_search", "slots": [{"start": 9, "end": 21, "label": "PER", "text": "Donald Trump"}]}
+{"text": "Weather forecast for Dubai", "intent": "web_search", "slots": [{"start": 21, "end": 26, "label": "LOC", "text": "Dubai"}]}
+{"text": "What's the forecast for Toronto?", "intent": "web_search", "slots": [{"start": 24, "end": 31, "label": "LOC", "text": "Toronto"}]}
+{"text": "Who studied at NYU?", "intent": "knowledge_query", "slots": []}
+{"text": "Who's in my network?", "intent": "knowledge_query", "slots": []}
+{"text": "Biography of Taylor Swift", "intent": "web_search", "slots": [{"start": 13, "end": 25, "label": "PER", "text": "Taylor Swift"}]}
+{"text": "Raj's email is raj@example.com", "intent": "contact_update", "slots": [{"start": 0, "end": 3, "label": "PER", "text": "Raj"}, {"start": 15, "end": 30, "label": "EMAIL", "text": "raj@example.com"}]}
+{"text": "Who is in charge of Disney?", "intent": "web_search", "slots": [{"start": 20, "end": 26, "label": "ORG", "text": "Disney"}]}
+{"text": "How is Toyota stock doing?", "intent": "web_search", "slots": [{"start": 7, "end": 13, "label": "ORG", "text": "Toyota"}]}
+{"text": "JPMorgan share price", "intent": "web_search", "slots": [{"start": 0, "end": 8, "label": "ORG", "text": "JPMorgan"}]}
+{"text": "Look up deep learning", "intent": "web_search", "slots": [{"start": 8, "end": 21, "label": "EVENT", "text": "deep learning"}]}
+{"text": "Let's have a one-on-one with Rohan at 3pm", "intent": "calendar_create", "slots": [{"start": 13, "end": 23, "label": "EVENT", "text": "one-on-one"}, {"start": 29, "end": 34, "label": "PER", "text": "Rohan"}, {"start": 38, "end": 41, "label": "TIME", "text": "3pm"}]}
+{"text": "Remember that Priya's email is priya@example.com", "intent": "contact_update", "slots": [{"start": 14, "end": 19, "label": "PER", "text": "Priya"}, {"start": 31, "end": 48, "label": "EMAIL", "text": "priya@example.com"}]}
+{"text": "Info on artificial intelligence", "intent": "web_search", "slots": [{"start": 8, "end": 31, "label": "EVENT", "text": "artificial intelligence"}]}
+{"text": "Who has AWS experience?", "intent": "knowledge_query", "slots": []}
+{"text": "Nvidia quarterly results", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Nvidia"}]}
+{"text": "what emails did I get about startups", "intent": "email_query", "slots": []}
+{"text": "Who do I know at JPMorgan?", "intent": "knowledge_query", "slots": [{"start": 17, "end": 25, "label": "ORG", "text": "JPMorgan"}]}
+{"text": "Singapore weather", "intent": "web_search", "slots": [{"start": 0, "end": 9, "label": "LOC", "text": "Singapore"}]}
+{"text": "Denver travel guide", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "LOC", "text": "Denver"}]}
+{"text": "Walmart earnings", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "ORG", "text": "Walmart"}]}
+{"text": "Stock price IBM", "intent": "web_search", "slots": [{"start": 12, "end": 15, "label": "ORG", "text": "IBM"}]}
+{"text": "Reschedule the lunch to next week", "intent": "calendar_update", "slots": [{"start": 15, "end": 20, "label": "EVENT", "text": "lunch"}, {"start": 24, "end": 33, "label": "DATE", "text": "next week"}]}
+{"text": "What does democracy mean?", "intent": "web_search", "slots": []}
+{"text": "Temperature in Sydney", "intent": "web_search", "slots": [{"start": 15, "end": 21, "label": "LOC", "text": "Sydney"}]}
+{"text": "People working in consulting", "intent": "knowledge_query", "slots": []}
+{"text": "Flights to Atlanta", "intent": "web_search", "slots": [{"start": 11, "end": 18, "label": "LOC", "text": "Atlanta"}]}
+{"text": "what emails did I get about machine learning", "intent": "email_query", "slots": []}
+{"text": "Do we have anything on Priya Williams?", "intent": "knowledge_query", "slots": [{"start": 23, "end": 37, "label": "PER", "text": "Priya Williams"}]}
+{"text": "How old is Barack Obama?", "intent": "web_search", "slots": [{"start": 11, "end": 23, "label": "PER", "text": "Barack Obama"}]}
+{"text": "What's happening with docker?", "intent": "web_search", "slots": [{"start": 22, "end": 28, "label": "EVENT", "text": "docker"}]}
+{"text": "Create a retrospective with Wei Wednesday at in the morning", "intent": "calendar_create", "slots": [{"start": 9, "end": 22, "label": "EVENT", "text": "retrospective"}, {"start": 28, "end": 31, "label": "PER", "text": "Wei"}, {"start": 32, "end": 41, "label": "DATE", "text": "Wednesday"}, {"start": 45, "end": 59, "label": "TIME", "text": "in the morning"}]}
+{"text": "Add 1:1 to my calendar for Saturday", "intent": "calendar_create", "slots": [{"start": 4, "end": 7, "label": "EVENT", "text": "1:1"}, {"start": 27, "end": 35, "label": "DATE", "text": "Saturday"}]}
+{"text": "Who did I just add?", "intent": "knowledge_query", "slots": []}
+{"text": "Oprah Winfrey net worth", "intent": "web_search", "slots": [{"start": 0, "end": 13, "label": "PER", "text": "Oprah Winfrey"}]}
+{"text": "Should I buy Anthropic stock?", "intent": "web_search", "slots": [{"start": 13, "end": 22, "label": "ORG", "text": "Anthropic"}]}
+{"text": "What is Salesforce trading at?", "intent": "web_search", "slots": [{"start": 8, "end": 18, "label": "ORG", "text": "Salesforce"}]}
+{"text": "What's my connection to Priya Jones?", "intent": "knowledge_query", "slots": [{"start": 24, "end": 35, "label": "PER", "text": "Priya Jones"}]}
+{"text": "Should I buy Nvidia stock?", "intent": "web_search", "slots": [{"start": 13, "end": 19, "label": "ORG", "text": "Nvidia"}]}
+{"text": "Best restaurants in Mumbai", "intent": "web_search", "slots": [{"start": 20, "end": 26, "label": "LOC", "text": "Mumbai"}]}
+{"text": "Give me an email summary", "intent": "email_query", "slots": []}
+{"text": "Who do I know?", "intent": "knowledge_query", "slots": []}
+{"text": "What is API?", "intent": "web_search", "slots": []}
+{"text": "How hot is it in Vancouver?", "intent": "web_search", "slots": [{"start": 17, "end": 26, "label": "LOC", "text": "Vancouver"}]}
+{"text": "Look up Mark Zuckerberg", "intent": "web_search", "slots": [{"start": 8, "end": 23, "label": "PER", "text": "Mark Zuckerberg"}]}
+{"text": "List contacts who know UI design", "intent": "knowledge_query", "slots": []}
+{"text": "Is it hot in Singapore?", "intent": "web_search", "slots": [{"start": 13, "end": 22, "label": "LOC", "text": "Singapore"}]}
+{"text": "Pull up William", "intent": "knowledge_query", "slots": [{"start": 8, "end": 15, "label": "PER", "text": "William"}]}
+{"text": "Uber CEO", "intent": "web_search", "slots": [{"start": 0, "end": 4, "label": "ORG", "text": "Uber"}]}
+{"text": "Check Ford stock", "intent": "web_search", "slots": [{"start": 6, "end": 10, "label": "ORG", "text": "Ford"}]}
+{"text": "How cold is it in Nairobi?", "intent": "web_search", "slots": [{"start": 18, "end": 25, "label": "LOC", "text": "Nairobi"}]}
+{"text": "How much is Nintendo stock?", "intent": "web_search", "slots": [{"start": 12, "end": 20, "label": "ORG", "text": "Nintendo"}]}
+{"text": "Why is Mark Zuckerberg famous?", "intent": "web_search", "slots": [{"start": 7, "end": 22, "label": "PER", "text": "Mark Zuckerberg"}]}
+{"text": "Remind me who Anita Rodriguez is", "intent": "knowledge_query", "slots": [{"start": 14, "end": 29, "label": "PER", "text": "Anita Rodriguez"}]}
+{"text": "Who is Toyota's CEO?", "intent": "web_search", "slots": [{"start": 7, "end": 13, "label": "ORG", "text": "Toyota"}]}
+{"text": "What's the forecast for New York?", "intent": "web_search", "slots": [{"start": 24, "end": 32, "label": "LOC", "text": "New York"}]}
+{"text": "Who's at Acme Corp?", "intent": "knowledge_query", "slots": [{"start": 9, "end": 18, "label": "ORG", "text": "Acme Corp"}]}
+{"text": "Add Alice, he studies at Innovate Labs", "intent": "contact_update", "slots": [{"start": 4, "end": 9, "label": "PER", "text": "Alice"}, {"start": 25, "end": 38, "label": "ORG", "text": "Innovate Labs"}]}
+{"text": "Meaning of AI", "intent": "web_search", "slots": []}
+{"text": "Explain computer vision", "intent": "web_search", "slots": [{"start": 8, "end": 23, "label": "EVENT", "text": "computer vision"}]}
+{"text": "Is it raining in Cairo?", "intent": "web_search", "slots": [{"start": 17, "end": 22, "label": "LOC", "text": "Cairo"}]}
+{"text": "What's the forecast for Stockholm?", "intent": "web_search", "slots": [{"start": 24, "end": 33, "label": "LOC", "text": "Stockholm"}]}
+{"text": "Albert Einstein biography", "intent": "web_search", "slots": [{"start": 0, "end": 15, "label": "PER", "text": "Albert Einstein"}]}
+{"text": "IBM stock", "intent": "web_search", "slots": [{"start": 0, "end": 3, "label": "ORG", "text": "IBM"}]}
+{"text": "Create a sync with Sarah Thursday at 11am", "intent": "calendar_create", "slots": [{"start": 9, "end": 13, "label": "EVENT", "text": "sync"}, {"start": 19, "end": 24, "label": "PER", "text": "Sarah"}, {"start": 25, "end": 33, "label": "DATE", "text": "Thursday"}, {"start": 37, "end": 41, "label": "TIME", "text": "11am"}]}
+{"text": "Remind me who Chen Miller is", "intent": "knowledge_query", "slots": [{"start": 14, "end": 25, "label": "PER", "text": "Chen Miller"}]}
+{"text": "Is Mastercard a good investment?", "intent": "web_search", "slots": [{"start": 3, "end": 13, "label": "ORG", "text": "Mastercard"}]}
+{"text": "How do I know Hiroshi Brown?", "intent": "knowledge_query", "slots": [{"start": 14, "end": 27, "label": "PER", "text": "Hiroshi Brown"}]}
+{"text": "Move the 1:1 to 5pm", "intent": "calendar_update", "slots": [{"start": 9, "end": 12, "label": "EVENT", "text": "1:1"}, {"start": 16, "end": 19, "label": "TIME", "text": "5pm"}]}
+{"text": "What's on my calendar Monday?", "intent": "calendar_query", "slots": [{"start": 22, "end": 28, "label": "DATE", "text": "Monday"}]}
+{"text": "Ford earnings", "intent": "web_search", "slots": [{"start": 0, "end": 4, "label": "ORG", "text": "Ford"}]}
+{"text": "Vancouver forecast", "intent": "web_search", "slots": [{"start": 0, "end": 9, "label": "LOC", "text": "Vancouver"}]}
+{"text": "How does nuclear fusion work?", "intent": "web_search", "slots": [{"start": 9, "end": 23, "label": "EVENT", "text": "nuclear fusion"}]}
+{"text": "What does Bill Gates do?", "intent": "web_search", "slots": [{"start": 10, "end": 20, "label": "PER", "text": "Bill Gates"}]}
+{"text": "How did Coca-Cola stock do today?", "intent": "web_search", "slots": [{"start": 8, "end": 17, "label": "ORG", "text": "Coca-Cola"}]}
+{"text": "Google stock", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Google"}]}
+{"text": "Compose an email to Chen Mathew", "intent": "email_compose", "slots": [{"start": 20, "end": 31, "label": "PER", "text": "Chen Mathew"}]}
+{"text": "Who is in charge of JPMorgan?", "intent": "web_search", "slots": [{"start": 20, "end": 28, "label": "ORG", "text": "JPMorgan"}]}
+{"text": "Weather forecast for Singapore", "intent": "web_search", "slots": [{"start": 21, "end": 30, "label": "LOC", "text": "Singapore"}]}
+{"text": "Connections at Google", "intent": "knowledge_query", "slots": [{"start": 15, "end": 21, "label": "ORG", "text": "Google"}]}
+{"text": "any emails from Stanford University", "intent": "email_query", "slots": [{"start": 16, "end": 35, "label": "ORG", "text": "Stanford University"}]}
+{"text": "How old is Ellen DeGeneres?", "intent": "web_search", "slots": [{"start": 11, "end": 26, "label": "PER", "text": "Ellen DeGeneres"}]}
+{"text": "How's the weather in Auckland?", "intent": "web_search", "slots": [{"start": 21, "end": 29, "label": "LOC", "text": "Auckland"}]}
+{"text": "Disney stock", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Disney"}]}
+{"text": "Who leads Intel?", "intent": "web_search", "slots": [{"start": 10, "end": 15, "label": "ORG", "text": "Intel"}]}
+{"text": "Definition of encryption", "intent": "web_search", "slots": []}
+{"text": "Let them know the workshop is cancelled", "intent": "email_attendees", "slots": [{"start": 18, "end": 26, "label": "EVENT", "text": "workshop"}]}
+{"text": "What's the weather like in Boston?", "intent": "web_search", "slots": [{"start": 27, "end": 33, "label": "LOC", "text": "Boston"}]}
+{"text": "my meetings with Rohan Hernandez", "intent": "calendar_query", "slots": [{"start": 17, "end": 32, "label": "PER", "text": "Rohan Hernandez"}]}
+{"text": "Samsung market cap", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "ORG", "text": "Samsung"}]}
+{"text": "How hot is it in Lagos?", "intent": "web_search", "slots": [{"start": 17, "end": 22, "label": "LOC", "text": "Lagos"}]}
+{"text": "What's the stock price of Visa?", "intent": "web_search", "slots": [{"start": 26, "end": 30, "label": "ORG", "text": "Visa"}]}
+{"text": "Who do I have at Meta?", "intent": "knowledge_query", "slots": [{"start": 17, "end": 21, "label": "ORG", "text": "Meta"}]}
+{"text": "Get Michael's contact info", "intent": "knowledge_query", "slots": [{"start": 4, "end": 11, "label": "PER", "text": "Michael"}]}
+{"text": "How's the weather in Bangkok?", "intent": "web_search", "slots": [{"start": 21, "end": 28, "label": "LOC", "text": "Bangkok"}]}
+{"text": "Find information on Raj Shah", "intent": "knowledge_query", "slots": [{"start": 20, "end": 28, "label": "PER", "text": "Raj Shah"}]}
+{"text": "Look up Denzel Washington", "intent": "web_search", "slots": [{"start": 8, "end": 25, "label": "PER", "text": "Denzel Washington"}]}
+{"text": "What's the weather in Madrid?", "intent": "web_search", "slots": [{"start": 22, "end": 28, "label": "LOC", "text": "Madrid"}]}
+{"text": "Temperature in Paris", "intent": "web_search", "slots": [{"start": 15, "end": 20, "label": "LOC", "text": "Paris"}]}
+{"text": "How's Salesforce stock today?", "intent": "web_search", "slots": [{"start": 6, "end": 16, "label": "ORG", "text": "Salesforce"}]}
+{"text": "I'm having catch-up with Lisa", "intent": "calendar_create", "slots": [{"start": 11, "end": 19, "label": "EVENT", "text": "catch-up"}, {"start": 25, "end": 29, "label": "PER", "text": "Lisa"}]}
+{"text": "Stripe stock", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Stripe"}]}
+{"text": "Flights to Seattle", "intent": "web_search", "slots": [{"start": 11, "end": 18, "label": "LOC", "text": "Seattle"}]}
+{"text": "I need to check on Emma Zhang", "intent": "knowledge_query", "slots": [{"start": 19, "end": 29, "label": "PER", "text": "Emma Zhang"}]}
+{"text": "Find information about virtual reality", "intent": "web_search", "slots": [{"start": 23, "end": 38, "label": "EVENT", "text": "virtual reality"}]}
+{"text": "What can you tell me about Ahmed?", "intent": "knowledge_query", "slots": [{"start": 27, "end": 32, "label": "PER", "text": "Ahmed"}]}
+{"text": "Is Meta a good investment?", "intent": "web_search", "slots": [{"start": 3, "end": 7, "label": "ORG", "text": "Meta"}]}
+{"text": "What's the weather like in Zurich?", "intent": "web_search", "slots": [{"start": 27, "end": 33, "label": "LOC", "text": "Zurich"}]}
+{"text": "Should I buy Uber stock?", "intent": "web_search", "slots": [{"start": 13, "end": 17, "label": "ORG", "text": "Uber"}]}
+{"text": "News about climate change", "intent": "web_search", "slots": [{"start": 11, "end": 25, "label": "EVENT", "text": "climate change"}]}
+{"text": "Explain phishing", "intent": "web_search", "slots": []}
+{"text": "Wait", "intent": "conversation", "slots": []}
+{"text": "Cancel sync with Anita Mathew", "intent": "calendar_delete", "slots": [{"start": 7, "end": 11, "label": "EVENT", "text": "sync"}, {"start": 17, "end": 29, "label": "PER", "text": "Anita Mathew"}]}
+{"text": "events related to the database migration", "intent": "calendar_query", "slots": []}
+{"text": "What does Larry Page do?", "intent": "web_search", "slots": [{"start": 10, "end": 20, "label": "PER", "text": "Larry Page"}]}
+{"text": "Can you set up a standup with Lisa next Monday?", "intent": "calendar_create", "slots": [{"start": 17, "end": 24, "label": "EVENT", "text": "standup"}, {"start": 30, "end": 34, "label": "PER", "text": "Lisa"}, {"start": 35, "end": 46, "label": "DATE", "text": "next Monday"}]}
+{"text": "Will it rain in Vienna?", "intent": "web_search", "slots": [{"start": 16, "end": 22, "label": "LOC", "text": "Vienna"}]}
+{"text": "Is Nvidia a good investment?", "intent": "web_search", "slots": [{"start": 3, "end": 9, "label": "ORG", "text": "Nvidia"}]}
+{"text": "What does Neil deGrasse Tyson do?", "intent": "web_search", "slots": [{"start": 10, "end": 29, "label": "PER", "text": "Neil deGrasse Tyson"}]}
+{"text": "Meta earnings", "intent": "web_search", "slots": [{"start": 0, "end": 4, "label": "ORG", "text": "Meta"}]}
+{"text": "List Imperial College London contacts", "intent": "knowledge_query", "slots": [{"start": 5, "end": 28, "label": "ORG", "text": "Imperial College London"}]}
+{"text": "Tell me about Cristiano Ronaldo", "intent": "web_search", "slots": [{"start": 14, "end": 31, "label": "PER", "text": "Cristiano Ronaldo"}]}
+{"text": "Tomorrow's weather", "intent": "web_search", "slots": []}
+{"text": "Who founded SpaceX?", "intent": "web_search", "slots": [{"start": 12, "end": 18, "label": "ORG", "text": "SpaceX"}]}
+{"text": "Should I buy McDonald's stock?", "intent": "web_search", "slots": [{"start": 13, "end": 23, "label": "ORG", "text": "McDonald's"}]}
+{"text": "How does cybersecurity work?", "intent": "web_search", "slots": [{"start": 9, "end": 22, "label": "EVENT", "text": "cybersecurity"}]}
+{"text": "Who is Ellen DeGeneres?", "intent": "web_search", "slots": [{"start": 7, "end": 22, "label": "PER", "text": "Ellen DeGeneres"}]}
+{"text": "Add Ahmed Gonzalez as a person I know", "intent": "contact_update", "slots": [{"start": 4, "end": 18, "label": "PER", "text": "Ahmed Gonzalez"}]}
+{"text": "What's OpenAI worth?", "intent": "web_search", "slots": [{"start": 7, "end": 13, "label": "ORG", "text": "OpenAI"}]}
+{"text": "Find information about kubernetes", "intent": "web_search", "slots": [{"start": 23, "end": 33, "label": "EVENT", "text": "kubernetes"}]}
+{"text": "Things to do in Denver", "intent": "web_search", "slots": [{"start": 16, "end": 22, "label": "LOC", "text": "Denver"}]}
+{"text": "Please delete the lunch next week", "intent": "calendar_delete", "slots": [{"start": 18, "end": 23, "label": "EVENT", "text": "lunch"}, {"start": 24, "end": 33, "label": "DATE", "text": "next week"}]}
+{"text": "What is Satya Nadella known for?", "intent": "web_search", "slots": [{"start": 8, "end": 21, "label": "PER", "text": "Satya Nadella"}]}
+{"text": "Is it cold in Tokyo?", "intent": "web_search", "slots": [{"start": 14, "end": 19, "label": "LOC", "text": "Tokyo"}]}
+{"text": "Stock price Sony", "intent": "web_search", "slots": [{"start": 12, "end": 16, "label": "ORG", "text": "Sony"}]}
+{"text": "Visa stock price", "intent": "web_search", "slots": [{"start": 0, "end": 4, "label": "ORG", "text": "Visa"}]}
+{"text": "How's the weather in Boston?", "intent": "web_search", "slots": [{"start": 21, "end": 27, "label": "LOC", "text": "Boston"}]}
+{"text": "Biography of Elon Musk", "intent": "web_search", "slots": [{"start": 13, "end": 22, "label": "PER", "text": "Elon Musk"}]}
+{"text": "Who can help with DevOps?", "intent": "knowledge_query", "slots": []}
+{"text": "Chen is a colleague at TechStart Inc", "intent": "contact_update", "slots": [{"start": 0, "end": 4, "label": "PER", "text": "Chen"}, {"start": 23, "end": 36, "label": "ORG", "text": "TechStart Inc"}]}
+{"text": "Pull up Yuki Singh", "intent": "knowledge_query", "slots": [{"start": 8, "end": 18, "label": "PER", "text": "Yuki Singh"}]}
+{"text": "What company is Wei at?", "intent": "knowledge_query", "slots": [{"start": 16, "end": 19, "label": "PER", "text": "Wei"}]}
+{"text": "McDonald's share price", "intent": "web_search", "slots": [{"start": 0, "end": 10, "label": "ORG", "text": "McDonald's"}]}
+{"text": "Find information on Jessica Yamamoto", "intent": "knowledge_query", "slots": [{"start": 20, "end": 36, "label": "PER", "text": "Jessica Yamamoto"}]}
+{"text": "Stripe quarterly results", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Stripe"}]}
+{"text": "Can you tell me about robotics?", "intent": "web_search", "slots": [{"start": 22, "end": 30, "label": "EVENT", "text": "robotics"}]}
+{"text": "Current weather in Montreal", "intent": "web_search", "slots": [{"start": 19, "end": 27, "label": "LOC", "text": "Montreal"}]}
+{"text": "What's the weather like in Cairo?", "intent": "web_search", "slots": [{"start": 27, "end": 32, "label": "LOC", "text": "Cairo"}]}
+{"text": "Look up Jessica Rodriguez", "intent": "knowledge_query", "slots": [{"start": 8, "end": 25, "label": "PER", "text": "Jessica Rodriguez"}]}
+{"text": "What company does Jensen Huang run?", "intent": "web_search", "slots": [{"start": 18, "end": 30, "label": "PER", "text": "Jensen Huang"}]}
+{"text": "Okay", "intent": "conversation", "slots": []}
+{"text": "Search for LeBron James", "intent": "web_search", "slots": [{"start": 11, "end": 23, "label": "PER", "text": "LeBron James"}]}
+{"text": "Who founded Nike?", "intent": "web_search", "slots": [{"start": 12, "end": 16, "label": "ORG", "text": "Nike"}]}
+{"text": "How's the weather in San Francisco?", "intent": "web_search", "slots": [{"start": 21, "end": 34, "label": "LOC", "text": "San Francisco"}]}
+{"text": "Look up kubernetes", "intent": "web_search", "slots": [{"start": 8, "end": 18, "label": "EVENT", "text": "kubernetes"}]}
+{"text": "I want to know about augmented reality", "intent": "web_search", "slots": [{"start": 21, "end": 38, "label": "EVENT", "text": "augmented reality"}]}
+{"text": "Search for computer vision", "intent": "web_search", "slots": [{"start": 11, "end": 26, "label": "EVENT", "text": "computer vision"}]}
+{"text": "Give me details on Chen Gonzalez", "intent": "knowledge_query", "slots": [{"start": 19, "end": 32, "label": "PER", "text": "Chen Gonzalez"}]}
+{"text": "Who is Starbucks's CEO?", "intent": "web_search", "slots": [{"start": 7, "end": 16, "label": "ORG", "text": "Starbucks"}]}
+{"text": "Learn about docker", "intent": "web_search", "slots": [{"start": 12, "end": 18, "label": "EVENT", "text": "docker"}]}
+{"text": "Remember that Carlos works at Google", "intent": "contact_update", "slots": [{"start": 14, "end": 20, "label": "PER", "text": "Carlos"}, {"start": 30, "end": 36, "label": "ORG", "text": "Google"}]}
+{"text": "Where can I find info on Sarah?", "intent": "knowledge_query", "slots": [{"start": 25, "end": 30, "label": "PER", "text": "Sarah"}]}
+{"text": "What do you know about Sarah Gupta?", "intent": "knowledge_query", "slots": [{"start": 23, "end": 34, "label": "PER", "text": "Sarah Gupta"}]}
+{"text": "Should I buy Adobe stock?", "intent": "web_search", "slots": [{"start": 13, "end": 18, "label": "ORG", "text": "Adobe"}]}
+{"text": "show me emails related to orders", "intent": "email_query", "slots": []}
+{"text": "What's Netflix's stock price?", "intent": "web_search", "slots": [{"start": 7, "end": 14, "label": "ORG", "text": "Netflix"}]}
+{"text": "Samsung quarterly results", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "ORG", "text": "Samsung"}]}
+{"text": "Write an email to Wei Yamamoto", "intent": "email_compose", "slots": [{"start": 18, "end": 30, "label": "PER", "text": "Wei Yamamoto"}]}
+{"text": "Is it hot in Bangkok?", "intent": "web_search", "slots": [{"start": 13, "end": 20, "label": "LOC", "text": "Bangkok"}]}
+{"text": "What company does Dario Amodei run?", "intent": "web_search", "slots": [{"start": 18, "end": 30, "label": "PER", "text": "Dario Amodei"}]}
+{"text": "What's the forecast for Cairo?", "intent": "web_search", "slots": [{"start": 24, "end": 29, "label": "LOC", "text": "Cairo"}]}
+{"text": "What's in my inbox?", "intent": "email_query", "slots": []}
+{"text": "Cancel review with Fatima Mathew", "intent": "calendar_delete", "slots": [{"start": 7, "end": 13, "label": "EVENT", "text": "review"}, {"start": 19, "end": 32, "label": "PER", "text": "Fatima Mathew"}]}
+{"text": "Set up a dinner with Jessica Martinez at 1pm", "intent": "calendar_create", "slots": [{"start": 9, "end": 15, "label": "EVENT", "text": "dinner"}, {"start": 21, "end": 37, "label": "PER", "text": "Jessica Martinez"}, {"start": 41, "end": 44, "label": "TIME", "text": "1pm"}]}
+{"text": "Who leads Oracle?", "intent": "web_search", "slots": [{"start": 10, "end": 16, "label": "ORG", "text": "Oracle"}]}
+{"text": "Flights to Singapore", "intent": "web_search", "slots": [{"start": 11, "end": 20, "label": "LOC", "text": "Singapore"}]}
+{"text": "List Emma Tanaka's colleagues", "intent": "knowledge_query", "slots": [{"start": 5, "end": 16, "label": "PER", "text": "Emma Tanaka"}]}
+{"text": "Latest news on deep learning", "intent": "web_search", "slots": [{"start": 15, "end": 28, "label": "EVENT", "text": "deep learning"}]}
+{"text": "How hot is it in Austin?", "intent": "web_search", "slots": [{"start": 17, "end": 23, "label": "LOC", "text": "Austin"}]}
+{"text": "Will it rain in Berlin?", "intent": "web_search", "slots": [{"start": 16, "end": 22, "label": "LOC", "text": "Berlin"}]}
+{"text": "meetings with Rohan Kumar", "intent": "calendar_query", "slots": [{"start": 14, "end": 25, "label": "PER", "text": "Rohan Kumar"}]}
+{"text": "Who exactly is Emma Johnson?", "intent": "knowledge_query", "slots": [{"start": 15, "end": 27, "label": "PER", "text": "Emma Johnson"}]}
+{"text": "Chicago forecast", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "LOC", "text": "Chicago"}]}
+{"text": "Find people at Meta", "intent": "knowledge_query", "slots": [{"start": 15, "end": 19, "label": "ORG", "text": "Meta"}]}
+{"text": "News briefing", "intent": "web_search", "slots": []}
+{"text": "show me meetings regarding DOSA", "intent": "calendar_query", "slots": []}
+{"text": "What's McDonald's's stock price?", "intent": "web_search", "slots": [{"start": 7, "end": 17, "label": "ORG", "text": "McDonald's"}]}
+{"text": "Hotels in New York", "intent": "web_search", "slots": [{"start": 10, "end": 18, "label": "LOC", "text": "New York"}]}
+{"text": "What's happening with solar energy?", "intent": "web_search", "slots": [{"start": 22, "end": 34, "label": "EVENT", "text": "solar energy"}]}
+{"text": "Who runs Oracle?", "intent": "web_search", "slots": [{"start": 9, "end": 15, "label": "ORG", "text": "Oracle"}]}
+{"text": "Who founded Microsoft?", "intent": "web_search", "slots": [{"start": 12, "end": 21, "label": "ORG", "text": "Microsoft"}]}
+{"text": "Is it hot in Zurich?", "intent": "web_search", "slots": [{"start": 13, "end": 19, "label": "LOC", "text": "Zurich"}]}
+{"text": "Is it sunny today?", "intent": "web_search", "slots": []}
+{"text": "What's on my calendar Wednesday?", "intent": "calendar_query", "slots": [{"start": 22, "end": 31, "label": "DATE", "text": "Wednesday"}]}
+{"text": "Who studied at UCLA?", "intent": "knowledge_query", "slots": []}
+{"text": "Connections at Google", "intent": "knowledge_query", "slots": [{"start": 15, "end": 21, "label": "ORG", "text": "Google"}]}
+{"text": "Rohan's email address is rohan@example.com", "intent": "contact_update", "slots": [{"start": 0, "end": 5, "label": "PER", "text": "Rohan"}, {"start": 25, "end": 42, "label": "EMAIL", "text": "rohan@example.com"}]}
+{"text": "Makes sense", "intent": "conversation", "slots": []}
+{"text": "Samsung share price", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "ORG", "text": "Samsung"}]}
+{"text": "I need to check on Daniel Gupta", "intent": "knowledge_query", "slots": [{"start": 19, "end": 31, "label": "PER", "text": "Daniel Gupta"}]}
+{"text": "Is Dario Amodei famous?", "intent": "web_search", "slots": [{"start": 3, "end": 15, "label": "PER", "text": "Dario Amodei"}]}
+{"text": "Is it cold in Paris?", "intent": "web_search", "slots": [{"start": 14, "end": 19, "label": "LOC", "text": "Paris"}]}
+{"text": "What is GDP?", "intent": "web_search", "slots": []}
+{"text": "How's the weather in Dubai?", "intent": "web_search", "slots": [{"start": 21, "end": 26, "label": "LOC", "text": "Dubai"}]}
+{"text": "Is it hot in Toronto?", "intent": "web_search", "slots": [{"start": 13, "end": 20, "label": "LOC", "text": "Toronto"}]}
+{"text": "Check Disney stock", "intent": "web_search", "slots": [{"start": 6, "end": 12, "label": "ORG", "text": "Disney"}]}
+{"text": "List everyone", "intent": "knowledge_query", "slots": []}
+{"text": "How old is Denzel Washington?", "intent": "web_search", "slots": [{"start": 11, "end": 28, "label": "PER", "text": "Denzel Washington"}]}
+{"text": "Draft an email to Mike Brown regarding the API", "intent": "email_compose", "slots": [{"start": 18, "end": 28, "label": "PER", "text": "Mike Brown"}, {"start": 39, "end": 46, "label": "EVENT", "text": "the API"}]}
+{"text": "Is it cold in Nairobi?", "intent": "web_search", "slots": [{"start": 14, "end": 21, "label": "LOC", "text": "Nairobi"}]}
+{"text": "Nintendo stock price", "intent": "web_search", "slots": [{"start": 0, "end": 8, "label": "ORG", "text": "Nintendo"}]}
+{"text": "Is JPMorgan stock up or down?", "intent": "web_search", "slots": [{"start": 3, "end": 11, "label": "ORG", "text": "JPMorgan"}]}
+{"text": "Current weather in Rome", "intent": "web_search", "slots": [{"start": 19, "end": 23, "label": "LOC", "text": "Rome"}]}
+{"text": "My contacts at Meta", "intent": "knowledge_query", "slots": [{"start": 15, "end": 19, "label": "ORG", "text": "Meta"}]}
+{"text": "Goodbye", "intent": "conversation", "slots": []}
+{"text": "Who's at Apple?", "intent": "knowledge_query", "slots": [{"start": 9, "end": 14, "label": "ORG", "text": "Apple"}]}
+{"text": "Who is the CEO of Amazon?", "intent": "web_search", "slots": [{"start": 18, "end": 24, "label": "ORG", "text": "Amazon"}]}
+{"text": "Netflix share price", "intent": "web_search", "slots": [{"start": 0, "end": 7, "label": "ORG", "text": "Netflix"}]}
+{"text": "My network", "intent": "knowledge_query", "slots": []}
+{"text": "Search for augmented reality", "intent": "web_search", "slots": [{"start": 11, "end": 28, "label": "EVENT", "text": "augmented reality"}]}
+{"text": "Write an email to Arjun Davis", "intent": "email_compose", "slots": [{"start": 18, "end": 29, "label": "PER", "text": "Arjun Davis"}]}
+{"text": "What did Adele do?", "intent": "web_search", "slots": [{"start": 9, "end": 14, "label": "PER", "text": "Adele"}]}
+{"text": "Info on JavaScript", "intent": "web_search", "slots": [{"start": 8, "end": 18, "label": "EVENT", "text": "JavaScript"}]}
+{"text": "Goldman Sachs earnings", "intent": "web_search", "slots": [{"start": 0, "end": 13, "label": "ORG", "text": "Goldman Sachs"}]}
+{"text": "What company does Joe Biden run?", "intent": "web_search", "slots": [{"start": 18, "end": 27, "label": "PER", "text": "Joe Biden"}]}
+{"text": "Find information about Python", "intent": "web_search", "slots": [{"start": 23, "end": 29, "label": "EVENT", "text": "Python"}]}
+{"text": "Is Cristiano Ronaldo famous?", "intent": "web_search", "slots": [{"start": 3, "end": 20, "label": "PER", "text": "Cristiano Ronaldo"}]}
+{"text": "Weather in Los Angeles", "intent": "web_search", "slots": [{"start": 11, "end": 22, "label": "LOC", "text": "Los Angeles"}]}
+{"text": "Who is in charge of Netflix?", "intent": "web_search", "slots": [{"start": 20, "end": 27, "label": "ORG", "text": "Netflix"}]}
+{"text": "Anita Wang's skills", "intent": "knowledge_query", "slots": [{"start": 0, "end": 10, "label": "PER", "text": "Anita Wang"}]}
+{"text": "Who started McDonald's?", "intent": "web_search", "slots": [{"start": 12, "end": 22, "label": "ORG", "text": "McDonald's"}]}
+{"text": "Explain battery technology", "intent": "web_search", "slots": [{"start": 8, "end": 26, "label": "EVENT", "text": "battery technology"}]}
+{"text": "Who studied at Harvard?", "intent": "knowledge_query", "slots": []}
+{"text": "Who is the CEO of Toyota?", "intent": "web_search", "slots": [{"start": 18, "end": 24, "label": "ORG", "text": "Toyota"}]}
+{"text": "Look up Leonardo DiCaprio", "intent": "web_search", "slots": [{"start": 8, "end": 25, "label": "PER", "text": "Leonardo DiCaprio"}]}
+{"text": "Arrange a brainstorm at conference room A Thursday", "intent": "calendar_create", "slots": [{"start": 10, "end": 20, "label": "EVENT", "text": "brainstorm"}, {"start": 24, "end": 41, "label": "LOC", "text": "conference room A"}, {"start": 42, "end": 50, "label": "DATE", "text": "Thursday"}]}
+{"text": "How do I know Emily Jones?", "intent": "knowledge_query", "slots": [{"start": 14, "end": 25, "label": "PER", "text": "Emily Jones"}]}
+{"text": "How does wind power work?", "intent": "web_search", "slots": [{"start": 9, "end": 19, "label": "EVENT", "text": "wind power"}]}
+{"text": "Is Ford a good investment?", "intent": "web_search", "slots": [{"start": 3, "end": 7, "label": "ORG", "text": "Ford"}]}
+{"text": "Who started Ford?", "intent": "web_search", "slots": [{"start": 12, "end": 16, "label": "ORG", "text": "Ford"}]}
+{"text": "What did Ed Sheeran do?", "intent": "web_search", "slots": [{"start": 9, "end": 19, "label": "PER", "text": "Ed Sheeran"}]}
+{"text": "Weather in San Francisco", "intent": "web_search", "slots": [{"start": 11, "end": 24, "label": "LOC", "text": "San Francisco"}]}
+{"text": "What's the stock price of Cisco?", "intent": "web_search", "slots": [{"start": 26, "end": 31, "label": "ORG", "text": "Cisco"}]}
+{"text": "Disney quarterly results", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "ORG", "text": "Disney"}]}
+{"text": "Show everyone in my network", "intent": "knowledge_query", "slots": []}
+{"text": "What's the weather in Cairo?", "intent": "web_search", "slots": [{"start": 22, "end": 27, "label": "LOC", "text": "Cairo"}]}
+{"text": "Tell me about AI", "intent": "web_search", "slots": [{"start": 14, "end": 16, "label": "EVENT", "text": "AI"}]}
+{"text": "Is Goldman Sachs stock up or down?", "intent": "web_search", "slots": [{"start": 3, "end": 16, "label": "ORG", "text": "Goldman Sachs"}]}
+{"text": "Will it rain in Rome?", "intent": "web_search", "slots": [{"start": 16, "end": 20, "label": "LOC", "text": "Rome"}]}
+{"text": "Who leads Goldman Sachs?", "intent": "web_search", "slots": [{"start": 10, "end": 23, "label": "ORG", "text": "Goldman Sachs"}]}
+{"text": "Madrid forecast", "intent": "web_search", "slots": [{"start": 0, "end": 6, "label": "LOC", "text": "Madrid"}]}
+{"text": "Reply to that email from Sarah", "intent": "email_reply", "slots": [{"start": 25, "end": 30, "label": "PER", "text": "Sarah"}]}
+{"text": "Australia weather", "intent": "web_search", "slots": [{"start": 0, "end": 9, "label": "LOC", "text": "Australia"}]}
+{"text": "What's Amogh's background?", "intent": "knowledge_query", "slots": [{"start": 7, "end": 12, "label": "PER", "text": "Amogh"}]}
+{"text": "Check Walmart stock", "intent": "web_search", "slots": [{"start": 6, "end": 13, "label": "ORG", "text": "Walmart"}]}
+{"text": "Who is the founder of SpaceX?", "intent": "web_search", "slots": [{"start": 22, "end": 28, "label": "ORG", "text": "SpaceX"}]}
+{"text": "Google nuclear fusion", "intent": "web_search", "slots": [{"start": 7, "end": 21, "label": "EVENT", "text": "nuclear fusion"}]}
+{"text": "Info on cybersecurity", "intent": "web_search", "slots": [{"start": 8, "end": 21, "label": "EVENT", "text": "cybersecurity"}]}
+{"text": "Write an email to Vikram Williams", "intent": "email_compose", "slots": [{"start": 18, "end": 33, "label": "PER", "text": "Vikram Williams"}]}
+{"text": "Hotels in Mumbai", "intent": "web_search", "slots": [{"start": 10, "end": 16, "label": "LOC", "text": "Mumbai"}]}
+{"text": "How's the weather in Japan?", "intent": "web_search", "slots": [{"start": 21, "end": 26, "label": "LOC", "text": "Japan"}]}
+{"text": "How old is Jeff Bezos?", "intent": "web_search", "slots": [{"start": 11, "end": 21, "label": "PER", "text": "Jeff Bezos"}]}
+{"text": "messages about orders", "intent": "email_query", "slots": []}

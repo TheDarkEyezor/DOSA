@@ -1007,50 +1007,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dosa"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "axum",
- "base64 0.21.7",
- "chrono",
- "chrono-english",
- "chrono-tz",
- "cpal",
- "dirs 5.0.1",
- "env_logger",
- "hound",
- "keyring",
- "log",
- "ndarray",
- "oauth2",
- "once_cell",
- "open",
- "ort",
- "pdf-extract",
- "rand 0.8.5",
- "rayon",
- "regex",
- "reqwest",
- "rusqlite",
- "rustyline",
- "serde",
- "serde_json",
- "shellexpand",
- "strsim",
- "thiserror 1.0.69",
- "tiny_http",
- "tokenizers",
- "tokio",
- "tokio-cron-scheduler",
- "urlencoding",
- "uuid",
- "walkdir",
- "whisper-rs",
-]
-
-[[package]]
 name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3272,6 +3228,50 @@ name = "ryu"
 version = "1.0.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
+
+[[package]]
+name = "samantha"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "base64 0.21.7",
+ "chrono",
+ "chrono-english",
+ "chrono-tz",
+ "cpal",
+ "dirs 5.0.1",
+ "env_logger",
+ "hound",
+ "keyring",
+ "log",
+ "ndarray",
+ "oauth2",
+ "once_cell",
+ "open",
+ "ort",
+ "pdf-extract",
+ "rand 0.8.5",
+ "rayon",
+ "regex",
+ "reqwest",
+ "rusqlite",
+ "rustyline",
+ "serde",
+ "serde_json",
+ "shellexpand",
+ "strsim",
+ "thiserror 1.0.69",
+ "tiny_http",
+ "tokenizers",
+ "tokio",
+ "tokio-cron-scheduler",
+ "urlencoding",
+ "uuid",
+ "walkdir",
+ "whisper-rs",
+]
 
 [[package]]
 name = "same-file"

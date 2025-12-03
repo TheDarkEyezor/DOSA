@@ -1,8 +1,8 @@
 [package]
-name = "dosa"
+name = "samantha"
 version = "0.1.0"
 edition = "2021"
-description = "Digitally Optimized Smart Assistant - A personal AI assistant with knowledge graph"
+description = "Samantha - A warm, curious AI companion with memory and reminders"
 authors = ["TheDarkEyezor"]
 
 [dependencies]

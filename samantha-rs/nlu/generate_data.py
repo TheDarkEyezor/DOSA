@@ -227,7 +227,7 @@ def generate_calendar_query() -> List[Example]:
     for text, slots in queries:
         examples.append(Example(text=text, intent="calendar_query", slots=slots))
     
-    # Generate variations
+    # Generate variations with days
     for day in DAYS + RELATIVE_DAYS:
         text = f"What's on my calendar {day}?"
         start = text.index(day)
@@ -236,6 +236,83 @@ def generate_calendar_query() -> List[Example]:
             intent="calendar_query", 
             slots=[Slot(start, start + len(day), "DATE", day)]
         ))
+    
+    # Person-based calendar queries
+    person_templates = [
+        "meetings with {name}",
+        "show meetings with {name}",
+        "what meetings do I have with {name}",
+        "do I have any meetings with {name}",
+        "when am I meeting {name}",
+        "when is my next meeting with {name}",
+        "any events with {name}",
+        "what's scheduled with {name}",
+        "am I meeting with {name} this week",
+        "show calendar events with {name}",
+        "meetings involving {name}",
+        "calls with {name}",
+        "when do I see {name}",
+        "my meetings with {name}",
+    ]
+    
+    for template in person_templates:
+        for _ in range(3):  # Generate 3 variations per template
+            full_name, first_name = random_name()
+            name = random.choice([full_name, first_name])
+            text = template.format(name=name)
+            start = text.index(name)
+            examples.append(Example(
+                text=text,
+                intent="calendar_query",
+                slots=[Slot(start, start + len(name), "PER", name)]
+            ))
+    
+    # Topic/project-based calendar queries
+    topic_templates = [
+        "meetings about {topic}",
+        "events related to {topic}",
+        "what meetings are about {topic}",
+        "calendar events for {topic}",
+        "show me meetings regarding {topic}",
+        "any events about {topic}",
+        "meetings concerning {topic}",
+        "what's scheduled for {topic}",
+        "do I have meetings about {topic}",
+        "calendar for {topic}",
+    ]
+    
+    topics = PROJECTS + ["AI", "machine learning", "budgets", "hiring", "sales", 
+                         "product", "engineering", "design", "marketing", "finance",
+                         "strategy", "roadmap", "planning", "review", "demo"]
+    
+    for template in topic_templates:
+        for topic in random.sample(topics, min(5, len(topics))):
+            text = template.format(topic=topic)
+            examples.append(Example(
+                text=text,
+                intent="calendar_query",
+                slots=[]  # Topics aren't entity-tagged for now
+            ))
+    
+    # Organization-based calendar queries  
+    org_templates = [
+        "meetings with {org}",
+        "do I have any calls with {org}",
+        "when am I meeting someone from {org}",
+        "show meetings with people from {org}",
+        "events with {org}",
+        "calendar with {org}",
+    ]
+    
+    for template in org_templates:
+        for org in random.sample(ORGANIZATIONS, min(5, len(ORGANIZATIONS))):
+            text = template.format(org=org)
+            start = text.index(org)
+            examples.append(Example(
+                text=text,
+                intent="calendar_query",
+                slots=[Slot(start, start + len(org), "ORG", org)]
+            ))
     
     return examples
 
@@ -502,6 +579,66 @@ def generate_email_query() -> List[Example]:
                 intent="email_query",
                 slots=[Slot(start, start + len(person), "PER", person)]
             ))
+    
+    # Topic-based email queries
+    topic_templates = [
+        "emails about {topic}",
+        "what emails did I get about {topic}",
+        "show me emails related to {topic}",
+        "any emails regarding {topic}",
+        "emails concerning {topic}",
+        "show emails about {topic}",
+        "find emails related to {topic}",
+        "what emails are about {topic}",
+        "do I have emails about {topic}",
+        "messages about {topic}",
+        "emails mentioning {topic}",
+        "search emails for {topic}",
+        "emails on the topic of {topic}",
+        "show me {topic} related emails",
+        "filter emails by {topic}",
+    ]
+    
+    email_topics = [
+        "startups", "AI", "machine learning", "work", "project", "budget",
+        "sales", "hiring", "interviews", "meetings", "deadlines", "reports",
+        "marketing", "design", "engineering", "finance", "strategy",
+        "the product launch", "quarterly review", "performance", "feedback",
+        "travel", "expenses", "invoices", "contracts", "partnership",
+        "investment", "funding", "clients", "customers", "support",
+        "shipping", "delivery", "orders", "subscriptions", "renewals",
+    ]
+    
+    for template in topic_templates:
+        for topic in random.sample(email_topics, min(6, len(email_topics))):
+            text = template.format(topic=topic)
+            examples.append(Example(
+                text=text,
+                intent="email_query",
+                slots=[]
+            ))
+    
+    # Organization-based email queries
+    org_email_templates = [
+        "emails from {org}",
+        "show emails from {org}",
+        "any emails from {org}",
+        "messages from {org}",
+        "emails involving {org}",
+        "show me {org} emails",
+        "emails about {org}",
+    ]
+    
+    for template in org_email_templates:
+        for org in random.sample(ORGANIZATIONS, min(5, len(ORGANIZATIONS))):
+            text = template.format(org=org)
+            start = text.find(org)
+            if start >= 0:
+                examples.append(Example(
+                    text=text,
+                    intent="email_query",
+                    slots=[Slot(start, start + len(org), "ORG", org)]
+                ))
     
     return examples
 

@@ -42,6 +42,35 @@ pub enum CalendarQueryType {
     Week,
     Upcoming,
     Date(NaiveDate),
+    /// Meetings with a specific person
+    WithPerson(String),
+    /// Meetings about a topic or project
+    Topic(String),
+    /// Events at/from an organization
+    WithOrg(String),
+    /// Complex filter combining multiple criteria
+    Filter(CalendarFilter),
+}
+
+/// Complex calendar filter for advanced queries
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct CalendarFilter {
+    /// People involved in the meeting (from KG or name)
+    pub with_people: Vec<String>,
+    /// Organizations related to the meeting
+    pub with_orgs: Vec<String>,
+    /// Topic/project keywords
+    pub topics: Vec<String>,
+    /// Only recurring events
+    pub recurring_only: bool,
+    /// Only all-day events
+    pub all_day_only: bool,
+    /// Date range start
+    pub after: Option<chrono::DateTime<chrono::Utc>>,
+    /// Date range end
+    pub before: Option<chrono::DateTime<chrono::Utc>>,
+    /// Limit results
+    pub limit: usize,
 }
 
 /// Email query subtypes
@@ -51,6 +80,40 @@ pub enum EmailQueryType {
     List,
     From(String),
     Summary,
+    /// Semantic search - filter by topic/content
+    Topic(String),
+    /// Filter by person from knowledge graph
+    AboutPerson(String),
+    /// Filter by organization from knowledge graph
+    AboutOrg(String),
+    /// Filter by time range
+    DateRange { from: Option<chrono::DateTime<chrono::Utc>>, to: Option<chrono::DateTime<chrono::Utc>> },
+    /// Complex filter combining multiple criteria
+    Filter(EmailFilter),
+}
+
+/// Complex email filter for advanced queries
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct EmailFilter {
+    /// Topic/content keywords
+    pub topics: Vec<String>,
+    /// Sender names or emails
+    pub from: Vec<String>,
+    /// Recipient names or emails  
+    pub to: Vec<String>,
+    /// People mentioned (from KG)
+    pub mentions_people: Vec<String>,
+    /// Organizations related (from KG)
+    pub mentions_orgs: Vec<String>,
+    /// Only unread
+    pub unread_only: bool,
+    /// Only starred/important
+    pub important_only: bool,
+    /// Date range
+    pub after: Option<chrono::DateTime<chrono::Utc>>,
+    pub before: Option<chrono::DateTime<chrono::Utc>>,
+    /// Limit results
+    pub limit: usize,
 }
 
 /// Result of intent classification
