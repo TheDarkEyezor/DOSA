@@ -103,6 +103,98 @@ impl Database {
             [],
         )?;
 
+        // ============= Samantha/WhatsApp tables =============
+        
+        // Chat users table - stores messaging users with preferences
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS chat_users (
+                phone TEXT PRIMARY KEY,
+                name TEXT,
+                timezone TEXT,
+                morning_greeting_time TEXT,
+                night_greeting_time TEXT,
+                morning_greeting_sent_today INTEGER DEFAULT 0,
+                night_greeting_sent_today INTEGER DEFAULT 0,
+                timezone_asked INTEGER DEFAULT 0,
+                greeting_asked INTEGER DEFAULT 0,
+                awaiting_location INTEGER DEFAULT 0,
+                awaiting_sleep_times INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                last_active DATETIME
+            )",
+            [],
+        )?;
+
+        // Chat messages - conversation history per user
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS chat_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_phone TEXT NOT NULL,
+                role TEXT NOT NULL,
+                content TEXT NOT NULL,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_phone) REFERENCES chat_users(phone)
+            )",
+            [],
+        )?;
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_messages_user ON chat_messages(user_phone)",
+            [],
+        )?;
+
+        // Chat memories - facts extracted about users
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS chat_memories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_phone TEXT NOT NULL,
+                memory_type TEXT NOT NULL,
+                content TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_phone) REFERENCES chat_users(phone)
+            )",
+            [],
+        )?;
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_memories_user ON chat_memories(user_phone)",
+            [],
+        )?;
+
+        // Reminders table
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS reminders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_phone TEXT NOT NULL,
+                message TEXT NOT NULL,
+                remind_at DATETIME NOT NULL,
+                repeat_type TEXT,
+                is_active INTEGER DEFAULT 1,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_phone) REFERENCES chat_users(phone)
+            )",
+            [],
+        )?;
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_reminders_user ON reminders(user_phone)",
+            [],
+        )?;
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_reminders_time ON reminders(remind_at)",
+            [],
+        )?;
+
+        // Pending reminders (awaiting timezone confirmation)
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS pending_reminders (
+                user_phone TEXT PRIMARY KEY,
+                reminder_data TEXT NOT NULL,
+                guessed_timezone TEXT NOT NULL,
+                guessed_city TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_phone) REFERENCES chat_users(phone)
+            )",
+            [],
+        )?;
+
         Ok(())
     }
 
@@ -453,6 +545,410 @@ impl Database {
             Err(e) => Err(e.into()),
         }
     }
+
+    // ============= Samantha/Chat User Methods =============
+
+    /// Ensure a chat user exists (create if not)
+    pub fn ensure_chat_user(&self, phone: &str, name: Option<&str>) -> Result<()> {
+        self.conn.execute(
+            "INSERT INTO chat_users (phone, name, last_active) VALUES (?1, ?2, CURRENT_TIMESTAMP)
+             ON CONFLICT(phone) DO UPDATE SET last_active = CURRENT_TIMESTAMP, name = COALESCE(?2, name)",
+            params![phone, name],
+        )?;
+        Ok(())
+    }
+
+    /// Get chat user timezone
+    pub fn get_user_timezone(&self, phone: &str) -> Result<Option<String>> {
+        let mut stmt = self.conn.prepare("SELECT timezone FROM chat_users WHERE phone = ?1")?;
+        let result = stmt.query_row(params![phone], |row| row.get(0));
+        match result {
+            Ok(tz) => Ok(tz),
+            Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
+            Err(e) => Err(e.into()),
+        }
+    }
+
+    /// Set chat user timezone
+    pub fn set_user_timezone(&self, phone: &str, timezone: &str) -> Result<()> {
+        self.conn.execute(
+            "UPDATE chat_users SET timezone = ?1 WHERE phone = ?2",
+            params![timezone, phone],
+        )?;
+        Ok(())
+    }
+
+    /// Check if user is awaiting location response
+    pub fn is_awaiting_location(&self, phone: &str) -> Result<bool> {
+        let mut stmt = self.conn.prepare(
+            "SELECT awaiting_location FROM chat_users WHERE phone = ?1"
+        )?;
+        let result = stmt.query_row(params![phone], |row| row.get::<_, i32>(0));
+        match result {
+            Ok(val) => Ok(val == 1),
+            Err(_) => Ok(false),
+        }
+    }
+
+    /// Set awaiting location flag
+    pub fn set_awaiting_location(&self, phone: &str, awaiting: bool) -> Result<()> {
+        self.conn.execute(
+            "UPDATE chat_users SET awaiting_location = ?1 WHERE phone = ?2",
+            params![if awaiting { 1 } else { 0 }, phone],
+        )?;
+        Ok(())
+    }
+
+    /// Check if user is awaiting sleep times response
+    pub fn is_awaiting_sleep_times(&self, phone: &str) -> Result<bool> {
+        let mut stmt = self.conn.prepare(
+            "SELECT awaiting_sleep_times FROM chat_users WHERE phone = ?1"
+        )?;
+        let result = stmt.query_row(params![phone], |row| row.get::<_, i32>(0));
+        match result {
+            Ok(val) => Ok(val == 1),
+            Err(_) => Ok(false),
+        }
+    }
+
+    /// Set awaiting sleep times flag
+    pub fn set_awaiting_sleep_times(&self, phone: &str, awaiting: bool) -> Result<()> {
+        self.conn.execute(
+            "UPDATE chat_users SET awaiting_sleep_times = ?1 WHERE phone = ?2",
+            params![if awaiting { 1 } else { 0 }, phone],
+        )?;
+        Ok(())
+    }
+
+    /// Set user greeting times
+    pub fn set_user_greeting_times(&self, phone: &str, morning: &str, night: &str) -> Result<()> {
+        self.conn.execute(
+            "UPDATE chat_users SET morning_greeting_time = ?1, night_greeting_time = ?2, awaiting_sleep_times = 0 WHERE phone = ?3",
+            params![morning, night, phone],
+        )?;
+        Ok(())
+    }
+
+    /// Mark timezone asked
+    pub fn set_timezone_asked(&self, phone: &str) -> Result<()> {
+        self.conn.execute(
+            "UPDATE chat_users SET timezone_asked = 1, awaiting_location = 1 WHERE phone = ?1",
+            params![phone],
+        )?;
+        Ok(())
+    }
+
+    /// Mark greeting asked
+    pub fn set_greeting_asked(&self, phone: &str) -> Result<()> {
+        self.conn.execute(
+            "UPDATE chat_users SET greeting_asked = 1, awaiting_sleep_times = 1 WHERE phone = ?1",
+            params![phone],
+        )?;
+        Ok(())
+    }
+
+    /// Get users for timezone onboarding (after 1 day, no timezone set)
+    pub fn get_users_for_timezone_onboarding(&self) -> Result<Vec<(String, Option<String>)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT phone, name FROM chat_users 
+             WHERE timezone IS NULL 
+             AND timezone_asked = 0 
+             AND datetime(created_at, '+1 day') <= datetime('now')"
+        )?;
+        let rows = stmt.query_map([], |row| {
+            Ok((row.get(0)?, row.get(1)?))
+        })?;
+        let mut results = Vec::new();
+        for row in rows {
+            results.push(row?);
+        }
+        Ok(results)
+    }
+
+    /// Get users for greeting onboarding (after 2 days, no greeting times set)
+    pub fn get_users_for_greeting_onboarding(&self) -> Result<Vec<(String, Option<String>)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT phone, name FROM chat_users 
+             WHERE morning_greeting_time IS NULL 
+             AND greeting_asked = 0 
+             AND datetime(created_at, '+2 days') <= datetime('now')"
+        )?;
+        let rows = stmt.query_map([], |row| {
+            Ok((row.get(0)?, row.get(1)?))
+        })?;
+        let mut results = Vec::new();
+        for row in rows {
+            results.push(row?);
+        }
+        Ok(results)
+    }
+
+    /// Get users for morning greeting
+    pub fn get_users_for_morning_greeting(&self) -> Result<Vec<(String, Option<String>, String, String)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT phone, name, timezone, morning_greeting_time FROM chat_users 
+             WHERE morning_greeting_time IS NOT NULL 
+             AND timezone IS NOT NULL 
+             AND morning_greeting_sent_today = 0"
+        )?;
+        let rows = stmt.query_map([], |row| {
+            Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+        })?;
+        let mut results = Vec::new();
+        for row in rows {
+            results.push(row?);
+        }
+        Ok(results)
+    }
+
+    /// Get users for night greeting
+    pub fn get_users_for_night_greeting(&self) -> Result<Vec<(String, Option<String>, String, String)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT phone, name, timezone, night_greeting_time FROM chat_users 
+             WHERE night_greeting_time IS NOT NULL 
+             AND timezone IS NOT NULL 
+             AND night_greeting_sent_today = 0"
+        )?;
+        let rows = stmt.query_map([], |row| {
+            Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+        })?;
+        let mut results = Vec::new();
+        for row in rows {
+            results.push(row?);
+        }
+        Ok(results)
+    }
+
+    /// Mark morning greeting sent
+    pub fn mark_morning_greeting_sent(&self, phone: &str) -> Result<()> {
+        self.conn.execute(
+            "UPDATE chat_users SET morning_greeting_sent_today = 1 WHERE phone = ?1",
+            params![phone],
+        )?;
+        Ok(())
+    }
+
+    /// Mark night greeting sent
+    pub fn mark_night_greeting_sent(&self, phone: &str) -> Result<()> {
+        self.conn.execute(
+            "UPDATE chat_users SET night_greeting_sent_today = 1 WHERE phone = ?1",
+            params![phone],
+        )?;
+        Ok(())
+    }
+
+    /// Reset daily greeting flags (call at midnight)
+    pub fn reset_daily_greetings(&self) -> Result<()> {
+        self.conn.execute(
+            "UPDATE chat_users SET morning_greeting_sent_today = 0, night_greeting_sent_today = 0",
+            [],
+        )?;
+        Ok(())
+    }
+
+    // ============= Chat Message Methods =============
+
+    /// Save a chat message
+    pub fn save_chat_message(&self, phone: &str, role: &str, content: &str) -> Result<()> {
+        self.conn.execute(
+            "INSERT INTO chat_messages (user_phone, role, content) VALUES (?1, ?2, ?3)",
+            params![phone, role, content],
+        )?;
+        Ok(())
+    }
+
+    /// Get conversation history
+    pub fn get_conversation_history(&self, phone: &str, limit: usize) -> Result<Vec<(String, String)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT role, content FROM chat_messages 
+             WHERE user_phone = ?1 
+             ORDER BY timestamp DESC 
+             LIMIT ?2"
+        )?;
+        let rows = stmt.query_map(params![phone, limit as i64], |row| {
+            Ok((row.get(0)?, row.get(1)?))
+        })?;
+        let mut results: Vec<(String, String)> = Vec::new();
+        for row in rows {
+            results.push(row?);
+        }
+        results.reverse(); // Chronological order
+        Ok(results)
+    }
+
+    // ============= Memory Methods =============
+
+    /// Save a memory about a user
+    pub fn save_memory(&self, phone: &str, memory_type: &str, content: &str) -> Result<()> {
+        self.conn.execute(
+            "INSERT INTO chat_memories (user_phone, memory_type, content) VALUES (?1, ?2, ?3)",
+            params![phone, memory_type, content],
+        )?;
+        Ok(())
+    }
+
+    /// Get user memories
+    pub fn get_user_memories(&self, phone: &str) -> Result<Vec<(String, String)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT memory_type, content FROM chat_memories WHERE user_phone = ?1 ORDER BY created_at"
+        )?;
+        let rows = stmt.query_map(params![phone], |row| {
+            Ok((row.get(0)?, row.get(1)?))
+        })?;
+        let mut results = Vec::new();
+        for row in rows {
+            results.push(row?);
+        }
+        Ok(results)
+    }
+
+    // ============= Reminder Methods =============
+
+    /// Add a reminder
+    pub fn add_reminder(&self, phone: &str, message: &str, remind_at: &str, repeat_type: Option<&str>) -> Result<i64> {
+        self.conn.execute(
+            "INSERT INTO reminders (user_phone, message, remind_at, repeat_type) VALUES (?1, ?2, ?3, ?4)",
+            params![phone, message, remind_at, repeat_type],
+        )?;
+        Ok(self.conn.last_insert_rowid())
+    }
+
+    /// Get pending reminders (due now or in the past)
+    pub fn get_pending_reminders(&self) -> Result<Vec<(i64, String, String, Option<String>)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT id, user_phone, message, repeat_type FROM reminders 
+             WHERE is_active = 1 AND datetime(remind_at) <= datetime('now')"
+        )?;
+        let rows = stmt.query_map([], |row| {
+            Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+        })?;
+        let mut results = Vec::new();
+        for row in rows {
+            results.push(row?);
+        }
+        Ok(results)
+    }
+
+    /// Get user's active reminders
+    pub fn get_user_active_reminders(&self, phone: &str) -> Result<Vec<(i64, String, String, Option<String>)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT id, message, remind_at, repeat_type FROM reminders 
+             WHERE user_phone = ?1 AND is_active = 1 ORDER BY remind_at"
+        )?;
+        let rows = stmt.query_map(params![phone], |row| {
+            Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+        })?;
+        let mut results = Vec::new();
+        for row in rows {
+            results.push(row?);
+        }
+        Ok(results)
+    }
+
+    /// Get today's reminders for a user
+    pub fn get_today_reminders(&self, phone: &str) -> Result<Vec<(String, String)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT message, remind_at FROM reminders 
+             WHERE user_phone = ?1 AND is_active = 1 
+             AND date(remind_at) = date('now') 
+             ORDER BY remind_at"
+        )?;
+        let rows = stmt.query_map(params![phone], |row| {
+            Ok((row.get(0)?, row.get(1)?))
+        })?;
+        let mut results = Vec::new();
+        for row in rows {
+            results.push(row?);
+        }
+        Ok(results)
+    }
+
+    /// Get tomorrow's reminders for a user
+    pub fn get_tomorrow_reminders(&self, phone: &str) -> Result<Vec<(String, String)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT message, remind_at FROM reminders 
+             WHERE user_phone = ?1 AND is_active = 1 
+             AND date(remind_at) = date('now', '+1 day') 
+             ORDER BY remind_at"
+        )?;
+        let rows = stmt.query_map(params![phone], |row| {
+            Ok((row.get(0)?, row.get(1)?))
+        })?;
+        let mut results = Vec::new();
+        for row in rows {
+            results.push(row?);
+        }
+        Ok(results)
+    }
+
+    /// Deactivate a reminder
+    pub fn deactivate_reminder(&self, reminder_id: i64) -> Result<()> {
+        self.conn.execute(
+            "UPDATE reminders SET is_active = 0 WHERE id = ?1",
+            params![reminder_id],
+        )?;
+        Ok(())
+    }
+
+    /// Update reminder after sending (for repeating reminders)
+    pub fn update_reminder_after_send(&self, reminder_id: i64, repeat_type: Option<&str>) -> Result<()> {
+        match repeat_type {
+            Some("daily") => {
+                self.conn.execute(
+                    "UPDATE reminders SET remind_at = datetime(remind_at, '+1 day') WHERE id = ?1",
+                    params![reminder_id],
+                )?;
+            }
+            Some("weekly") => {
+                self.conn.execute(
+                    "UPDATE reminders SET remind_at = datetime(remind_at, '+7 days') WHERE id = ?1",
+                    params![reminder_id],
+                )?;
+            }
+            _ => {
+                self.deactivate_reminder(reminder_id)?;
+            }
+        }
+        Ok(())
+    }
+
+    // ============= Pending Reminder Methods =============
+
+    /// Save pending reminder (awaiting timezone confirmation)
+    pub fn save_pending_reminder(&self, phone: &str, reminder_data: &str, guessed_tz: &str, guessed_city: &str) -> Result<()> {
+        self.conn.execute(
+            "INSERT INTO pending_reminders (user_phone, reminder_data, guessed_timezone, guessed_city) 
+             VALUES (?1, ?2, ?3, ?4)
+             ON CONFLICT(user_phone) DO UPDATE SET 
+                reminder_data = ?2, guessed_timezone = ?3, guessed_city = ?4, created_at = CURRENT_TIMESTAMP",
+            params![phone, reminder_data, guessed_tz, guessed_city],
+        )?;
+        Ok(())
+    }
+
+    /// Get pending reminder for user
+    pub fn get_pending_reminder(&self, phone: &str) -> Result<Option<(String, String, String)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT reminder_data, guessed_timezone, guessed_city FROM pending_reminders WHERE user_phone = ?1"
+        )?;
+        let result = stmt.query_row(params![phone], |row| {
+            Ok((row.get(0)?, row.get(1)?, row.get(2)?))
+        });
+        match result {
+            Ok(data) => Ok(Some(data)),
+            Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
+            Err(e) => Err(e.into()),
+        }
+    }
+
+    /// Clear pending reminder
+    pub fn clear_pending_reminder(&self, phone: &str) -> Result<()> {
+        self.conn.execute(
+            "DELETE FROM pending_reminders WHERE user_phone = ?1",
+            params![phone],
+        )?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -494,5 +990,31 @@ mod tests {
         assert_eq!(rels.len(), 1);
         assert_eq!(rels[0].1, "WORKS_AT");
         assert_eq!(rels[0].2, "TechCorp");
+    }
+
+    #[test]
+    fn test_chat_user_and_memories() {
+        let db = Database::in_memory().unwrap();
+        
+        db.ensure_chat_user("+1234567890", Some("Test User")).unwrap();
+        db.save_memory("+1234567890", "hobby", "likes playing guitar").unwrap();
+        
+        let memories = db.get_user_memories("+1234567890").unwrap();
+        assert_eq!(memories.len(), 1);
+        assert_eq!(memories[0].0, "hobby");
+        assert_eq!(memories[0].1, "likes playing guitar");
+    }
+
+    #[test]
+    fn test_reminders() {
+        let db = Database::in_memory().unwrap();
+        
+        db.ensure_chat_user("+1234567890", Some("Test")).unwrap();
+        let id = db.add_reminder("+1234567890", "call mom", "2024-12-02 15:00", None).unwrap();
+        assert!(id > 0);
+        
+        let reminders = db.get_user_active_reminders("+1234567890").unwrap();
+        assert_eq!(reminders.len(), 1);
+        assert_eq!(reminders[0].1, "call mom");
     }
 }

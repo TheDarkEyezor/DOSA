@@ -170,6 +170,12 @@ impl<'a> DocumentIngester<'a> {
     /// Parallel document ingestion - splits document into paragraphs and processes in parallel
     /// Uses multi-threading for faster extraction on large documents
     pub fn ingest_parallel(&self, document: &str) -> Result<IngestionResult> {
+        self.ingest_parallel_for(document, None)
+    }
+    
+    /// Parallel document ingestion with explicit subject specification
+    /// If `subject` is provided, use it; otherwise, auto-detect from document content
+    pub fn ingest_parallel_for(&self, document: &str, subject: Option<String>) -> Result<IngestionResult> {
         // Split document into paragraphs (preserving context)
         let paragraphs = Self::split_paragraphs(document);
         
@@ -177,14 +183,26 @@ impl<'a> DocumentIngester<'a> {
             return self.ingest_fast(document); // Fall back to single-threaded for small docs
         }
 
-        // Get user identity once (before parallel processing)
-        let user_name = self.graph.get_user_identity_name().ok().flatten();
+        // Determine the document subject:
+        // 1. If explicitly provided, use that
+        // 2. Otherwise, try to detect from document content (e.g., resume header)
+        // 3. Only fall back to user identity if document is self-referential
+        let user_identity = self.graph.get_user_identity_name().ok().flatten();
+        let subject_name = subject.or_else(|| Self::detect_document_subject(document, &user_identity));
+        
+        // If we detected a subject that isn't the user, create an entity for them
+        if let Some(ref name) = subject_name {
+            if user_identity.as_ref() != Some(name) {
+                // Create a person entity for the document subject
+                let _ = self.graph.add_entity(EntityType::Person, name);
+            }
+        }
         
         // Process paragraphs in parallel using rayon
         // Note: We use static methods to avoid capturing self (which has non-Send fields)
         let extracted: Vec<(Vec<DocumentEntity>, Vec<DocumentRelationship>)> = paragraphs
             .par_iter()
-            .map(|para| Self::extract_patterns_static(para, &user_name))
+            .map(|para| Self::extract_patterns_static(para, &subject_name))
             .collect();
 
         // Merge all extractions
@@ -217,8 +235,89 @@ impl<'a> DocumentIngester<'a> {
             .collect()
     }
 
+    /// Detect the document subject (e.g., person name from resume header)
+    /// Returns the detected name if found, or user_identity if document is clearly self-referential
+    pub fn detect_document_subject(document: &str, user_identity: &Option<String>) -> Option<String> {
+        let lower = document.to_lowercase();
+        
+        // FIRST: Try to detect a person name from the header (most reliable)
+        // This takes priority over self-referential detection
+        
+        // Get first few lines for header analysis
+        let first_lines: String = document.lines()
+            .take(5)
+            .filter(|l| !l.trim().is_empty())
+            .collect::<Vec<_>>()
+            .join("\n");
+        
+        let first_line = document.lines()
+            .find(|l| !l.trim().is_empty())
+            .unwrap_or("");
+        
+        // Pattern 1: First line is just a name (2-4 capitalized words, no special chars)
+        let trimmed_first = first_line.trim();
+        let words: Vec<&str> = trimmed_first.split_whitespace()
+            .filter(|w| w.chars().all(|c| c.is_alphabetic() || c == '-' || c == '\''))
+            .collect();
+        
+        if words.len() >= 2 && words.len() <= 4 {
+            let capitalized_count = words.iter()
+                .filter(|w| w.chars().next().map(|c| c.is_uppercase()).unwrap_or(false))
+                .count();
+            
+            if capitalized_count >= 2 {
+                let name = words.join(" ");
+                let non_names = ["resume", "curriculum vitae", "cv", "cover letter", "application"];
+                if !non_names.iter().any(|n| name.to_lowercase().contains(n)) {
+                    return Some(name);
+                }
+            }
+        }
+        
+        // Pattern 2: "<Name> - <Title>" or "<Name> | <Contact>" format
+        if let Some(separator_idx) = trimmed_first.find(" - ").or_else(|| trimmed_first.find(" | ")) {
+            let potential_name = trimmed_first[..separator_idx].trim();
+            let name_words: Vec<&str> = potential_name.split_whitespace()
+                .filter(|w| w.chars().all(|c| c.is_alphabetic() || c == '-' || c == '\''))
+                .collect();
+            
+            if name_words.len() >= 2 && name_words.len() <= 4 {
+                let capitalized = name_words.iter()
+                    .filter(|w| w.chars().next().map(|c| c.is_uppercase()).unwrap_or(false))
+                    .count();
+                if capitalized >= 2 {
+                    return Some(name_words.join(" "));
+                }
+            }
+        }
+        
+        // Pattern 3: "Resume of <Name>"
+        if let Some(idx) = first_lines.to_lowercase().find("resume of ") {
+            let after = &first_lines[idx + 10..];
+            let name_end = after.find('\n').unwrap_or(after.len());
+            let name = after[..name_end].trim();
+            if !name.is_empty() && name.split_whitespace().count() >= 2 {
+                return Some(name.to_string());
+            }
+        }
+        
+        // SECOND: Check if document is clearly self-referential (first-person pronouns in main content)
+        // Only count strong self-references, not casual mentions like "My Personal Website"
+        let strong_self_refs = ["i am ", "i'm a ", "my name is ", "about me\n", 
+                                "i work at ", "i work for ", "i have experience"];
+        let is_self_referential = strong_self_refs.iter().any(|s| lower.contains(s));
+        
+        if is_self_referential {
+            return user_identity.clone();
+        }
+        
+        // No clear subject found
+        None
+    }
+
     /// Static pattern extraction (no self reference, can be used in parallel)
-    fn extract_patterns_static(document: &str, user_name: &Option<String>) -> (Vec<DocumentEntity>, Vec<DocumentRelationship>) {
+    /// `subject_name` is the person this document is ABOUT (may differ from logged-in user)
+    fn extract_patterns_static(document: &str, subject_name: &Option<String>) -> (Vec<DocumentEntity>, Vec<DocumentRelationship>) {
         let mut entities = Vec::new();
         let mut relationships = Vec::new();
         let lower = document.to_lowercase();
@@ -240,9 +339,9 @@ impl<'a> DocumentIngester<'a> {
                     entity_type: "skill".to_string(),
                     properties: std::collections::HashMap::new(),
                 });
-                if let Some(ref user) = user_name {
+                if let Some(ref subject) = subject_name {
                     relationships.push(DocumentRelationship {
-                        subject: user.clone(),
+                        subject: subject.clone(),
                         predicate: "HAS_SKILL".to_string(),
                         object: skill_name,
                     });
@@ -288,9 +387,9 @@ impl<'a> DocumentIngester<'a> {
                     entity_type: "university".to_string(),
                     properties: std::collections::HashMap::new(),
                 });
-                if let Some(ref user) = user_name {
+                if let Some(ref subject) = subject_name {
                     relationships.push(DocumentRelationship {
-                        subject: user.clone(),
+                        subject: subject.clone(),
                         predicate: "STUDIED_AT".to_string(),
                         object: uni.to_string(),
                     });
@@ -313,9 +412,9 @@ impl<'a> DocumentIngester<'a> {
                         entity_type: "spokenlanguage".to_string(),
                         properties: std::collections::HashMap::new(),
                     });
-                    if let Some(ref user) = user_name {
+                    if let Some(ref subject) = subject_name {
                         relationships.push(DocumentRelationship {
-                            subject: user.clone(),
+                            subject: subject.clone(),
                             predicate: "SPEAKS".to_string(),
                             object: lang.to_string(),
                         });
@@ -340,9 +439,9 @@ impl<'a> DocumentIngester<'a> {
                     entity_type: "industry".to_string(),
                     properties: std::collections::HashMap::new(),
                 });
-                if let Some(ref user) = user_name {
+                if let Some(ref subject) = subject_name {
                     relationships.push(DocumentRelationship {
-                        subject: user.clone(),
+                        subject: subject.clone(),
                         predicate: "IN_INDUSTRY".to_string(),
                         object: industry.to_string(),
                     });
@@ -396,6 +495,11 @@ impl<'a> DocumentIngester<'a> {
 
     /// Ingest a PDF file (extracts text using pdftotext)
     pub fn ingest_pdf(&self, path: &std::path::Path) -> Result<IngestionResult> {
+        self.ingest_pdf_for(path, None)
+    }
+    
+    /// Ingest a PDF file with explicit subject specification
+    pub fn ingest_pdf_for(&self, path: &std::path::Path, subject: Option<String>) -> Result<IngestionResult> {
         // Extract text from PDF using pdftotext
         let output = std::process::Command::new("pdftotext")
             .args(["-layout", path.to_str().unwrap_or(""), "-"])
@@ -411,26 +515,31 @@ impl<'a> DocumentIngester<'a> {
             .map_err(|e| anyhow::anyhow!("Invalid UTF-8 in PDF: {}", e))?;
 
         // Use parallel ingestion for the extracted text
-        self.ingest_parallel(&text)
+        self.ingest_parallel_for(&text, subject)
     }
 
     /// Ingest any file - auto-detects type
     pub fn ingest_file(&self, path: &std::path::Path) -> Result<IngestionResult> {
+        self.ingest_file_for(path, None)
+    }
+    
+    /// Ingest any file with explicit subject specification
+    pub fn ingest_file_for(&self, path: &std::path::Path, subject: Option<String>) -> Result<IngestionResult> {
         let extension = path.extension()
             .and_then(|e| e.to_str())
             .unwrap_or("")
             .to_lowercase();
 
         match extension.as_str() {
-            "pdf" => self.ingest_pdf(path),
+            "pdf" => self.ingest_pdf_for(path, subject),
             "txt" | "md" | "markdown" => {
                 let content = std::fs::read_to_string(path)?;
-                self.ingest_parallel(&content)
+                self.ingest_parallel_for(&content, subject)
             }
             _ => {
                 // Try to read as text
                 match std::fs::read_to_string(path) {
-                    Ok(content) => self.ingest_parallel(&content),
+                    Ok(content) => self.ingest_parallel_for(&content, subject),
                     Err(_) => Err(anyhow::anyhow!("Unsupported file type: {}", extension)),
                 }
             }

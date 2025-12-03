@@ -12,4 +12,29 @@
 
 # OS files
 .DS_Store
- *.venv*
+
+# Python virtual environments
+*.venv*
+.venv/
+__pycache__/
+*.pyc
+
+# NLU model files (large, generated)
+nlu/output/
+*.onnx
+*.onnx.data
+*.safetensors
+*.pth
+*.bin
+
+# Checkpoints
+checkpoint-*/
+
+# Keep config but ignore model weights
+!nlu/data/*.txt
+!nlu/data/*.jsonl
+
+# Credentials (never commit)
+*credentials*.json
+*token*.json
+*secret*.json

@@ -573,58 +573,336 @@ def generate_contact_update() -> List[Example]:
 # Intent: knowledge_query
 # =============================================================================
 
+# Skills and attributes for KG queries
+SKILLS = [
+    "Python", "Rust", "JavaScript", "TypeScript", "React", "machine learning",
+    "data science", "project management", "design", "marketing", "sales",
+    "finance", "accounting", "legal", "HR", "recruiting", "engineering",
+    "product management", "UX", "UI design", "DevOps", "cloud computing",
+    "AWS", "Azure", "GCP", "Docker", "Kubernetes", "SQL", "databases"
+]
+
+UNIVERSITIES = [
+    "Stanford", "MIT", "Harvard", "Oxford", "Cambridge", "Imperial College",
+    "Berkeley", "Yale", "Princeton", "Columbia", "UCLA", "NYU", "Cornell"
+]
+
+INDUSTRIES = [
+    "tech", "finance", "healthcare", "education", "retail", "manufacturing",
+    "consulting", "legal", "media", "entertainment", "real estate", "energy"
+]
+
+RELATIONSHIPS = [
+    "manager", "colleague", "teammate", "mentor", "friend", "classmate",
+    "coworker", "boss", "direct report", "collaborator"
+]
+
 def generate_knowledge_query() -> List[Example]:
     examples = []
     
-    # Who is queries
-    for _ in range(40):
+    # =========================================================================
+    # Person queries - "Who is X?" style (200 examples)
+    # =========================================================================
+    person_templates = [
+        "Who is {person}?",
+        "Tell me about {person}",
+        "What do you know about {person}?",
+        "Who is {person} again?",
+        "Give me info on {person}",
+        "What's {person}'s background?",
+        "Show me {person}'s profile",
+        "Look up {person}",
+        "Find {person}",
+        "What can you tell me about {person}?",
+        "I need information about {person}",
+        "Do you have info on {person}?",
+        "Pull up {person}",
+        "{person} - who are they?",
+        "Remind me who {person} is",
+        "What's the deal with {person}?",
+        "Give me details on {person}",
+        "Who exactly is {person}?",
+    ]
+    
+    for _ in range(200):
         person_full, _ = random_name()
-        
-        templates = [
-            f"Who is {person_full}?",
-            f"Tell me about {person_full}",
-            f"What do you know about {person_full}?",
-            f"Who is {person_full} again?",
-        ]
-        
-        text = random.choice(templates)
+        template = random.choice(person_templates)
+        text = template.format(person=person_full)
         start = text.find(person_full)
-        examples.append(Example(
-            text=text,
-            intent="knowledge_query",
-            slots=[Slot(start, start + len(person_full), "PER", person_full)]
-        ))
+        if start >= 0:
+            examples.append(Example(
+                text=text,
+                intent="knowledge_query",
+                slots=[Slot(start, start + len(person_full), "PER", person_full)]
+            ))
+        else:
+            examples.append(Example(text=text, intent="knowledge_query", slots=[]))
     
-    # Who works at queries
-    for _ in range(30):
+    # =========================================================================
+    # Organization queries - "Who works at X?" style (150 examples)
+    # =========================================================================
+    org_templates = [
+        "Who works at {org}?",
+        "Who do I know at {org}?",
+        "Show me people at {org}",
+        "List contacts at {org}",
+        "Anyone at {org}?",
+        "Do I know anyone at {org}?",
+        "Who's at {org}?",
+        "My contacts at {org}",
+        "People from {org}",
+        "Show {org} connections",
+        "Find people at {org}",
+        "Who do I have at {org}?",
+        "Connections at {org}",
+        "Anyone working at {org}?",
+        "List {org} contacts",
+    ]
+    
+    for _ in range(150):
         org = random_org()
-        
-        templates = [
-            f"Who works at {org}?",
-            f"Who do I know at {org}?",
-            f"Show me people at {org}",
-            f"List contacts at {org}",
-        ]
-        
-        text = random.choice(templates)
+        template = random.choice(org_templates)
+        text = template.format(org=org)
         start = text.find(org)
-        examples.append(Example(
-            text=text,
-            intent="knowledge_query",
-            slots=[Slot(start, start + len(org), "ORG", org)]
-        ))
+        if start >= 0:
+            examples.append(Example(
+                text=text,
+                intent="knowledge_query",
+                slots=[Slot(start, start + len(org), "ORG", org)]
+            ))
+        else:
+            examples.append(Example(text=text, intent="knowledge_query", slots=[]))
     
-    # General queries
-    general = [
+    # =========================================================================
+    # Skill-based queries (100 examples)
+    # =========================================================================
+    skill_templates = [
+        "Who knows {skill}?",
+        "Find people who know {skill}",
+        "Who has experience with {skill}?",
+        "Anyone with {skill} skills?",
+        "Show me {skill} experts",
+        "Who can help with {skill}?",
+        "People skilled in {skill}",
+        "List contacts who know {skill}",
+        "Who's good at {skill}?",
+        "Find someone who knows {skill}",
+        "Anyone familiar with {skill}?",
+        "Who has {skill} experience?",
+    ]
+    
+    for _ in range(100):
+        skill = random.choice(SKILLS)
+        template = random.choice(skill_templates)
+        text = template.format(skill=skill)
+        examples.append(Example(text=text, intent="knowledge_query", slots=[]))
+    
+    # =========================================================================
+    # Relationship queries (80 examples)
+    # =========================================================================
+    relationship_templates = [
+        "Who is {person}'s {relationship}?",
+        "Who does {person} work with?",
+        "Show me {person}'s team",
+        "Who manages {person}?",
+        "Who reports to {person}?",
+        "List {person}'s colleagues",
+        "{person}'s connections",
+        "Who knows {person}?",
+        "How do I know {person}?",
+        "What's my connection to {person}?",
+        "Show relationships for {person}",
+    ]
+    
+    for _ in range(80):
+        person_full, _ = random_name()
+        relationship = random.choice(RELATIONSHIPS)
+        template = random.choice(relationship_templates)
+        text = template.format(person=person_full, relationship=relationship)
+        start = text.find(person_full)
+        if start >= 0:
+            examples.append(Example(
+                text=text,
+                intent="knowledge_query",
+                slots=[Slot(start, start + len(person_full), "PER", person_full)]
+            ))
+        else:
+            examples.append(Example(text=text, intent="knowledge_query", slots=[]))
+    
+    # =========================================================================
+    # Education-based queries (60 examples)
+    # =========================================================================
+    edu_templates = [
+        "Who went to {university}?",
+        "Anyone from {university}?",
+        "Show contacts from {university}",
+        "Find people who studied at {university}",
+        "Who studied at {university}?",
+        "{university} alumni in my network",
+        "Contacts from {university}",
+        "Who do I know from {university}?",
+    ]
+    
+    for _ in range(60):
+        uni = random.choice(UNIVERSITIES)
+        template = random.choice(edu_templates)
+        text = template.format(university=uni)
+        examples.append(Example(text=text, intent="knowledge_query", slots=[]))
+    
+    # =========================================================================
+    # Industry queries (50 examples)
+    # =========================================================================
+    industry_templates = [
+        "Who works in {industry}?",
+        "Anyone in {industry}?",
+        "Contacts in {industry}",
+        "People working in {industry}",
+        "Show me {industry} contacts",
+        "Find people in {industry}",
+        "Who do I know in {industry}?",
+    ]
+    
+    for _ in range(50):
+        industry = random.choice(INDUSTRIES)
+        template = random.choice(industry_templates)
+        text = template.format(industry=industry)
+        examples.append(Example(text=text, intent="knowledge_query", slots=[]))
+    
+    # =========================================================================
+    # General contact queries (100 examples)
+    # =========================================================================
+    general_queries = [
         "Who do I know?",
         "Show me my contacts",
         "List all people",
         "Who are my contacts?",
         "Show everyone in my network",
+        "My network",
+        "List contacts",
+        "Show contacts",
+        "All my people",
+        "Everyone I know",
+        "Display my contacts",
+        "Show all contacts",
+        "Who's in my network?",
+        "List everyone",
+        "My connections",
+        "Show my connections",
+        "People I know",
+        "Display contacts",
+        "Contact list",
+        "All contacts",
+        "List my network",
+        "Network contacts",
+        "Show network",
+        "My people",
+        "Who's saved?",
+        "Saved contacts",
+        "Known people",
+        "All known contacts",
+        "Everyone saved",
+        "My address book",
     ]
     
-    for text in general:
-        examples.append(Example(text=text, intent="knowledge_query", slots=[]))
+    for text in general_queries:
+        for _ in range(3):  # Add each 3 times with slight variations
+            examples.append(Example(text=text, intent="knowledge_query", slots=[]))
+    
+    # =========================================================================
+    # Property queries - "What is X's Y?" (80 examples)
+    # =========================================================================
+    property_templates = [
+        "What is {person}'s email?",
+        "What's {person}'s phone number?",
+        "{person}'s email address",
+        "Get {person}'s contact info",
+        "Where does {person} work?",
+        "What company is {person} at?",
+        "{person}'s company",
+        "What does {person} do?",
+        "{person}'s job title",
+        "What's {person}'s role?",
+        "{person}'s position",
+        "Where is {person} located?",
+        "{person}'s location",
+        "What team is {person} on?",
+        "What skills does {person} have?",
+        "{person}'s skills",
+        "What's {person}'s background?",
+    ]
+    
+    for _ in range(80):
+        person_full, _ = random_name()
+        template = random.choice(property_templates)
+        text = template.format(person=person_full)
+        start = text.find(person_full)
+        if start >= 0:
+            examples.append(Example(
+                text=text,
+                intent="knowledge_query",
+                slots=[Slot(start, start + len(person_full), "PER", person_full)]
+            ))
+        else:
+            examples.append(Example(text=text, intent="knowledge_query", slots=[]))
+    
+    # =========================================================================
+    # Recent/context queries (40 examples)
+    # =========================================================================
+    context_queries = [
+        "Who did I add recently?",
+        "Recent contacts",
+        "New people added",
+        "Latest additions to contacts",
+        "Recently added people",
+        "Who's new in my network?",
+        "New contacts",
+        "Show recent additions",
+        "People I recently met",
+        "Contacts added this week",
+        "New connections",
+        "Latest contacts",
+        "Most recent contacts",
+        "Who did I just add?",
+    ]
+    
+    for text in context_queries:
+        for _ in range(3):
+            examples.append(Example(text=text, intent="knowledge_query", slots=[]))
+    
+    # =========================================================================
+    # Natural language variations (100 examples)
+    # =========================================================================
+    natural_templates = [
+        "I need to find {person}",
+        "Can you find {person} for me?",
+        "Looking for {person}",
+        "Help me find {person}",
+        "Where can I find info on {person}?",
+        "I'm looking for info on {person}",
+        "Do we have anything on {person}?",
+        "What have we got on {person}?",
+        "Any information about {person}?",
+        "I want to know about {person}",
+        "Tell me everything about {person}",
+        "Quick lookup on {person}",
+        "Search for {person}",
+        "Find information on {person}",
+        "I need to check on {person}",
+    ]
+    
+    for _ in range(100):
+        person_full, _ = random_name()
+        template = random.choice(natural_templates)
+        text = template.format(person=person_full)
+        start = text.find(person_full)
+        if start >= 0:
+            examples.append(Example(
+                text=text,
+                intent="knowledge_query",
+                slots=[Slot(start, start + len(person_full), "PER", person_full)]
+            ))
+        else:
+            examples.append(Example(text=text, intent="knowledge_query", slots=[]))
     
     return examples
 
@@ -656,8 +934,6 @@ def generate_conversation() -> List[Example]:
         "What can you do?",
         "Help me",
         "I need help",
-        "What's the weather like?",
-        "Tell me a joke",
         "That's funny",
         "Never mind",
         "Forget it",
@@ -672,10 +948,510 @@ def generate_conversation() -> List[Example]:
         "Bye",
         "See you",
         "Talk later",
+        "You're welcome",
+        "No problem",
+        "That makes sense",
+        "Perfect",
+        "Awesome",
+        "Cool",
+        "Nice",
+        "I understand",
+        "Clear",
+        "Noted",
     ]
     
     for text in conversations:
         examples.append(Example(text=text, intent="conversation", slots=[]))
+    
+    return examples
+
+# =============================================================================
+# Intent: web_search (EXPANDED)
+# =============================================================================
+
+CITIES = [
+    "London", "New York", "San Francisco", "Tokyo", "Paris", "Berlin",
+    "Singapore", "Sydney", "Mumbai", "Toronto", "Los Angeles", "Seattle",
+    "Chicago", "Boston", "Austin", "Denver", "Miami", "Atlanta", "Phoenix",
+    "Dubai", "Hong Kong", "Shanghai", "Beijing", "Seoul", "Bangkok",
+    "Rome", "Madrid", "Amsterdam", "Stockholm", "Vienna", "Zurich",
+    "Cape Town", "Cairo", "Lagos", "Nairobi", "Mexico City", "São Paulo",
+    "Buenos Aires", "Vancouver", "Montreal", "Melbourne", "Auckland",
+    "Canada", "Japan", "France", "Germany", "Italy", "Spain", "Australia"
+]
+
+COMPANIES = [
+    "Apple", "Google", "Tesla", "Amazon", "Microsoft", "Meta", "Netflix",
+    "Nvidia", "AMD", "Intel", "OpenAI", "Anthropic", "SpaceX", "Twitter",
+    "Uber", "Airbnb", "Stripe", "Shopify", "Salesforce", "Adobe", "Oracle",
+    "IBM", "Cisco", "Samsung", "Sony", "Nintendo", "Disney", "Warner Bros",
+    "Nike", "Coca-Cola", "McDonald's", "Starbucks", "Walmart", "Target",
+    "Goldman Sachs", "JPMorgan", "Bank of America", "Visa", "Mastercard",
+    "Boeing", "Lockheed Martin", "General Motors", "Ford", "Toyota", "Honda"
+]
+
+TOPICS = [
+    "Rust programming", "machine learning", "quantum computing", "AI", 
+    "blockchain", "climate change", "electric vehicles", "space exploration",
+    "cryptocurrency", "self-driving cars", "renewable energy", "5G technology",
+    "Python", "JavaScript", "web development", "data science", "cybersecurity",
+    "cloud computing", "kubernetes", "docker", "microservices", "DevOps",
+    "artificial intelligence", "deep learning", "natural language processing",
+    "computer vision", "robotics", "IoT", "augmented reality", "virtual reality",
+    "solar energy", "wind power", "nuclear fusion", "battery technology"
+]
+
+FAMOUS_PEOPLE = [
+    "Elon Musk", "Tim Cook", "Satya Nadella", "Jeff Bezos", "Mark Zuckerberg",
+    "Sundar Pichai", "Sam Altman", "Jensen Huang", "Dario Amodei",
+    "Bill Gates", "Warren Buffett", "Larry Page", "Sergey Brin", "Steve Jobs",
+    "Barack Obama", "Joe Biden", "Donald Trump", "Kamala Harris",
+    "Taylor Swift", "Beyoncé", "Drake", "Ed Sheeran", "Adele",
+    "Leonardo DiCaprio", "Tom Hanks", "Meryl Streep", "Denzel Washington",
+    "LeBron James", "Cristiano Ronaldo", "Lionel Messi", "Serena Williams",
+    "Stephen Hawking", "Albert Einstein", "Neil deGrasse Tyson", "Elon Musk",
+    "Oprah Winfrey", "Ellen DeGeneres", "Jimmy Fallon", "Trevor Noah"
+]
+
+CEO_QUERIES = [
+    # CEO queries - these should ALWAYS be web search
+    ("Who is the CEO of {company}?", "ORG"),
+    ("Who runs {company}?", "ORG"),
+    ("Who is {company}'s CEO?", "ORG"),
+    ("Who founded {company}?", "ORG"),
+    ("Who started {company}?", "ORG"),
+    ("Who leads {company}?", "ORG"),
+    ("Who is the founder of {company}?", "ORG"),
+    ("Who is in charge of {company}?", "ORG"),
+    ("Who is the president of {company}?", "ORG"),
+    ("{company} CEO", "ORG"),
+    ("{company} founder", "ORG"),
+]
+
+def generate_web_search() -> List[Example]:
+    examples = []
+    
+    # Weather queries - basic
+    weather_templates = [
+        "What's the weather like?",
+        "What's the weather today?",
+        "Is it going to rain today?",
+        "Is it going to rain tomorrow?",
+        "Will it rain today?",
+        "What's the forecast for today?",
+        "What's the temperature outside?",
+        "How's the weather?",
+        "Do I need an umbrella today?",
+        "Is it cold outside?",
+        "Is it hot today?",
+        "What's the weather forecast?",
+        "Should I bring a jacket?",
+        "Is it sunny today?",
+        "Will it snow?",
+        "What's the humidity?",
+        "Is it windy outside?",
+        "What's the forecast for this week?",
+        "Weather forecast",
+        "Today's weather",
+        "Tomorrow's weather",
+        "Weather report",
+        "Current temperature",
+        "What's it like outside?",
+    ]
+    
+    for text in weather_templates:
+        examples.append(Example(text=text, intent="web_search", slots=[]))
+    
+    # Weather with location - MANY variations
+    for city in CITIES:
+        templates = [
+            f"What's the weather in {city}?",
+            f"What's the weather like in {city}?",
+            f"Weather in {city}",
+            f"Temperature in {city}",
+            f"Is it raining in {city}?",
+            f"What's the forecast for {city}?",
+            f"How's the weather in {city}?",
+            f"{city} weather",
+            f"{city} forecast",
+            f"Will it rain in {city}?",
+            f"Is it cold in {city}?",
+            f"Is it hot in {city}?",
+            f"Current weather in {city}",
+            f"Weather forecast for {city}",
+            f"What's the temperature in {city}?",
+            f"How hot is it in {city}?",
+            f"How cold is it in {city}?",
+        ]
+        for text in templates:
+            start = text.find(city)
+            examples.append(Example(
+                text=text,
+                intent="web_search",
+                slots=[Slot(start, start + len(city), "LOC", city)]
+            ))
+    
+    # Stock price queries - EXPANDED
+    for company in COMPANIES:
+        templates = [
+            f"What's the stock price of {company}?",
+            f"How is {company} stock doing?",
+            f"What's {company}'s stock price?",
+            f"Check {company} stock",
+            f"How's {company} stock today?",
+            f"{company} stock price",
+            f"How much is {company} stock?",
+            f"{company} stock",
+            f"What is {company} trading at?",
+            f"{company} share price",
+            f"Stock price {company}",
+            f"Is {company} stock up or down?",
+            f"How did {company} stock do today?",
+            f"{company} market cap",
+            f"What's {company} worth?",
+            f"{company} stock news",
+            f"Should I buy {company} stock?",
+            f"Is {company} a good investment?",
+            f"{company} earnings",
+            f"{company} quarterly results",
+        ]
+        for text in templates:
+            start = text.find(company)
+            examples.append(Example(
+                text=text,
+                intent="web_search",
+                slots=[Slot(start, start + len(company), "ORG", company)]
+            ))
+    
+    # CEO/Company leadership queries - CRITICAL for routing
+    for company in COMPANIES:
+        for template, slot_type in CEO_QUERIES:
+            text = template.replace("{company}", company)
+            start = text.find(company)
+            examples.append(Example(
+                text=text,
+                intent="web_search",
+                slots=[Slot(start, start + len(company), slot_type, company)]
+            ))
+    
+    # General search queries
+    search_templates = [
+        ("Search for {topic}", "topic"),
+        ("Look up {topic}", "topic"),
+        ("Google {topic}", "topic"),
+        ("Find information about {topic}", "topic"),
+        ("What is {topic}?", "topic"),
+        ("Tell me about {topic}", "topic"),
+        ("How does {topic} work?", "topic"),
+        ("Latest news on {topic}", "topic"),
+        ("News about {topic}", "topic"),
+        ("What's happening with {topic}?", "topic"),
+        ("Research {topic}", "topic"),
+        ("Info on {topic}", "topic"),
+        ("Learn about {topic}", "topic"),
+        ("Explain {topic}", "topic"),
+        ("I want to know about {topic}", "topic"),
+        ("Can you tell me about {topic}?", "topic"),
+    ]
+    
+    for template, key in search_templates:
+        for topic in TOPICS:
+            text = template.replace(f"{{{key}}}", topic)
+            start = text.find(topic)
+            examples.append(Example(
+                text=text,
+                intent="web_search",
+                slots=[Slot(start, start + len(topic), "EVENT", topic)]
+            ))
+    
+    # Who is queries for famous people (web search, not knowledge graph)
+    for person in FAMOUS_PEOPLE:
+        templates = [
+            f"Who is {person}?",
+            f"Tell me about {person}",
+            f"Search for {person}",
+            f"What does {person} do?",
+            f"Look up {person}",
+            f"What is {person} known for?",
+            f"Biography of {person}",
+            f"{person} biography",
+            f"Where is {person} from?",
+            f"How old is {person}?",
+            f"What did {person} do?",
+            f"Is {person} famous?",
+            f"Why is {person} famous?",
+            f"{person} net worth",
+            f"What company does {person} run?",
+        ]
+        for text in templates:
+            start = text.find(person)
+            examples.append(Example(
+                text=text,
+                intent="web_search",
+                slots=[Slot(start, start + len(person), "PER", person)]
+            ))
+    
+    # Time/date queries
+    time_queries = [
+        "What time is it?",
+        "What's the current time?",
+        "What's today's date?",
+        "What day is it?",
+        "What's the date today?",
+        "Current time",
+        "What year is it?",
+        "What month is it?",
+        "What day of the week is it?",
+        "Time now",
+    ]
+    for text in time_queries:
+        examples.append(Example(text=text, intent="web_search", slots=[]))
+    
+    # Sports/entertainment queries - EXPANDED
+    sports_queries = [
+        "What's the score of the game?",
+        "Who won the match?",
+        "Latest sports news",
+        "Premier League results",
+        "NBA scores",
+        "World Cup standings",
+        "Olympics results",
+        "NFL scores",
+        "MLB results",
+        "Champions League scores",
+        "Tennis results",
+        "Golf scores",
+        "UFC results",
+        "Boxing results",
+        "F1 standings",
+        "NASCAR results",
+        "Who won last night's game?",
+        "Sports scores",
+        "Live sports scores",
+        "Football scores",
+        "Basketball scores",
+        "Baseball scores",
+        "Soccer scores",
+        "Hockey scores",
+    ]
+    for text in sports_queries:
+        examples.append(Example(text=text, intent="web_search", slots=[]))
+    
+    # News queries - EXPANDED
+    news_queries = [
+        "What's in the news today?",
+        "Latest headlines",
+        "Top news stories",
+        "Breaking news",
+        "What's happening in the world?",
+        "Current events",
+        "Today's news",
+        "News update",
+        "What's new?",
+        "Any news?",
+        "World news",
+        "Tech news",
+        "Business news",
+        "Politics news",
+        "Entertainment news",
+        "Science news",
+        "Health news",
+        "What's trending?",
+        "Trending topics",
+        "What's viral today?",
+        "Latest updates",
+        "News briefing",
+        "Morning news",
+        "Evening news",
+    ]
+    for text in news_queries:
+        examples.append(Example(text=text, intent="web_search", slots=[]))
+    
+    # Definition queries - EXPANDED
+    definition_templates = [
+        "Define {word}",
+        "What does {word} mean?",
+        "Definition of {word}",
+        "Meaning of {word}",
+        "What is {word}?",
+        "Explain {word}",
+        "What's {word}?",
+    ]
+    words = [
+        "AI", "machine learning", "blockchain", "cryptocurrency", "neural network", "API",
+        "algorithm", "database", "encryption", "firewall", "malware", "phishing",
+        "quantum", "robotics", "software", "hardware", "firmware", "protocol",
+        "GDP", "inflation", "recession", "interest rate", "stock market", "bonds",
+        "democracy", "republic", "socialism", "capitalism", "communism",
+    ]
+    for template in definition_templates:
+        for word in words:
+            text = template.replace("{word}", word)
+            examples.append(Example(text=text, intent="web_search", slots=[]))
+    
+    # How to queries - EXPANDED significantly
+    how_to_queries = [
+        "How to make pasta?",
+        "How to learn programming?",
+        "How to start a business?",
+        "How to invest in stocks?",
+        "How to cook rice?",
+        "How to tie a tie?",
+        "How do I reset my password?",
+        "How can I improve my sleep?",
+        "How to learn Python?",
+        "How to build a website?",
+        "How to lose weight?",
+        "How to save money?",
+        "How to get a job?",
+        "How to write a resume?",
+        "How to negotiate salary?",
+        "How to buy a house?",
+        "How to rent an apartment?",
+        "How to fix a flat tire?",
+        "How to change oil?",
+        "How to meditate?",
+        "How to exercise at home?",
+        "How to bake a cake?",
+        "How to make coffee?",
+        "How to speak Spanish?",
+        "How to play guitar?",
+        "How to draw?",
+        "How to paint?",
+        "How to budget?",
+        "How to file taxes?",
+        "How to get a passport?",
+        "How to apply for a visa?",
+        "How do you make bread?",
+        "How can I learn faster?",
+        "What's the best way to study?",
+        "Tips for cooking",
+        "Guide to investing",
+        "Tutorial on programming",
+        "Steps to start a company",
+        "How to become a developer?",
+        "How to become rich?",
+        "How to be successful?",
+        "How to be happy?",
+        "How to reduce stress?",
+        "How to deal with anxiety?",
+    ]
+    for text in how_to_queries:
+        examples.append(Example(text=text, intent="web_search", slots=[]))
+    
+    # Comparison queries
+    comparison_queries = [
+        "What's the difference between Python and JavaScript?",
+        "Compare iPhone and Android",
+        "Mac vs Windows",
+        "AWS vs Azure",
+        "React vs Angular",
+        "Which is better, Uber or Lyft?",
+        "Tesla vs Rivian",
+        "Netflix vs Disney Plus",
+        "Spotify vs Apple Music",
+        "What's better, coffee or tea?",
+    ]
+    for text in comparison_queries:
+        examples.append(Example(text=text, intent="web_search", slots=[]))
+    
+    # Recipe queries
+    recipe_queries = [
+        "Recipe for chocolate cake",
+        "How to make spaghetti?",
+        "Best pizza recipe",
+        "Chicken curry recipe",
+        "Vegetarian recipes",
+        "Quick dinner ideas",
+        "Healthy breakfast recipes",
+        "Dessert recipes",
+        "What should I cook tonight?",
+        "Easy recipes for beginners",
+    ]
+    for text in recipe_queries:
+        examples.append(Example(text=text, intent="web_search", slots=[]))
+    
+    # Travel queries
+    for city in CITIES[:20]:  # Use subset to avoid too many
+        templates = [
+            f"Things to do in {city}",
+            f"Best restaurants in {city}",
+            f"Hotels in {city}",
+            f"Flights to {city}",
+            f"Places to visit in {city}",
+            f"Tourist attractions in {city}",
+            f"{city} travel guide",
+        ]
+        for text in templates:
+            start = text.find(city)
+            examples.append(Example(
+                text=text,
+                intent="web_search",
+                slots=[Slot(start, start + len(city), "LOC", city)]
+            ))
+    
+    # Product/review queries
+    product_queries = [
+        "Best laptops 2024",
+        "Best phones 2024",
+        "Best headphones",
+        "Best TV to buy",
+        "iPhone 15 review",
+        "MacBook Pro review",
+        "Samsung Galaxy review",
+        "PlayStation 5 review",
+        "Best electric cars",
+        "Best budget phone",
+        "Top rated restaurants",
+        "Best movies to watch",
+        "Best books to read",
+        "Best Netflix shows",
+        "Best podcasts",
+    ]
+    for text in product_queries:
+        examples.append(Example(text=text, intent="web_search", slots=[]))
+    
+    # Fact queries - things you'd google
+    fact_queries = [
+        "Population of China",
+        "How tall is the Eiffel Tower?",
+        "When did World War 2 end?",
+        "Who invented the telephone?",
+        "What is the capital of France?",
+        "How far is the moon?",
+        "Largest country in the world",
+        "Richest person in the world",
+        "Tallest building in the world",
+        "Oldest person alive",
+        "Speed of light",
+        "Distance to Mars",
+        "How many countries are there?",
+        "What's the biggest animal?",
+        "When was the internet invented?",
+        "Who discovered electricity?",
+        "How many bones in the human body?",
+        "What causes earthquakes?",
+        "Why is the sky blue?",
+        "How do airplanes fly?",
+    ]
+    for text in fact_queries:
+        examples.append(Example(text=text, intent="web_search", slots=[]))
+    
+    # Price/cost queries
+    price_queries = [
+        "How much does an iPhone cost?",
+        "Price of Tesla Model 3",
+        "Cost of living in New York",
+        "Average rent in San Francisco",
+        "Gas prices today",
+        "Gold price",
+        "Bitcoin price",
+        "Oil prices",
+        "Silver price",
+        "Ethereum price",
+    ]
+    for text in price_queries:
+        examples.append(Example(text=text, intent="web_search", slots=[]))
     
     return examples
 
@@ -732,6 +1508,7 @@ def main():
         ("knowledge_query", generate_knowledge_query),
         ("conversation", generate_conversation),
         ("command", generate_command),
+        ("web_search", generate_web_search),
     ]
     
     for name, generator in generators:

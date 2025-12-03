@@ -341,7 +341,7 @@ pub struct IngestCommand;
 impl Command for IngestCommand {
     fn name(&self) -> &str { "/ingest" }
     fn description(&self) -> &str { "Add a document to extract entities and relationships (supports PDF, TXT, MD)" }
-    fn usage(&self) -> &str { "/ingest <text or file path>" }
+    fn usage(&self) -> &str { "/ingest [--for <person>] <text or file path>" }
     
     fn matches(&self, input: &str) -> bool {
         input.trim().to_lowercase().starts_with("/ingest ")
@@ -356,6 +356,33 @@ impl Command for IngestCommand {
         if content.is_empty() {
             return Ok(CommandResult::Error(format!("Usage: {}", self.usage())));
         }
+
+        // Parse --for flag to specify document subject
+        let (subject, content) = if content.starts_with("--for ") {
+            let after_flag = content.strip_prefix("--for ").unwrap_or(content);
+            // Find the end of the subject name (either a quote boundary or next flag/file)
+            if let Some(rest) = after_flag.strip_prefix('"') {
+                // Quoted name: --for "John Smith" <file>
+                if let Some(end_quote) = rest.find('"') {
+                    let name = rest[..end_quote].trim().to_string();
+                    let remaining = rest[end_quote + 1..].trim();
+                    (Some(name), remaining)
+                } else {
+                    (None, content) // Malformed quote
+                }
+            } else {
+                // Unquoted: --for John <file> (take first word as name)
+                // Or: --for "First Last" <file>
+                let parts: Vec<&str> = after_flag.splitn(2, ' ').collect();
+                if parts.len() >= 2 {
+                    (Some(parts[0].to_string()), parts[1].trim())
+                } else {
+                    (None, content)
+                }
+            }
+        } else {
+            (None, content)
+        };
 
         let ingester = crate::intelligence::DocumentIngester::new(ctx.graph);
 
@@ -373,14 +400,14 @@ impl Command for IngestCommand {
             
             if !path.exists() {
                 // Not a file, use as text
-                ingester.ingest_parallel(content)?
+                ingester.ingest_parallel_for(content, subject)?
             } else {
                 // Use the file ingestion (handles PDF, TXT, MD)
-                ingester.ingest_file(path)?
+                ingester.ingest_file_for(path, subject)?
             }
         } else {
             // Use parallel ingestion for text (splits by paragraphs)
-            ingester.ingest_parallel(content)?
+            ingester.ingest_parallel_for(content, subject)?
         };
 
         if result.entities_added.is_empty() && result.relationships_added.is_empty() && result.properties_set.is_empty() {

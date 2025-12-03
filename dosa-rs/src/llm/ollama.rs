@@ -135,6 +135,26 @@ impl OllamaClient {
         ]).await
     }
 
+    /// Simple completion (alias for query)
+    pub async fn complete(&self, prompt: &str) -> Result<String> {
+        self.query(prompt).await
+    }
+
+    /// Chat with pre-built message array (accepts serde_json::Value)
+    pub async fn chat_with_messages(&self, messages: &[serde_json::Value]) -> Result<String> {
+        // Convert JSON values to Message structs
+        let msgs: Vec<Message> = messages
+            .iter()
+            .filter_map(|v| {
+                let role = v.get("role")?.as_str()?.to_string();
+                let content = v.get("content")?.as_str()?.to_string();
+                Some(Message { role, content })
+            })
+            .collect();
+        
+        self.chat(msgs).await
+    }
+
     /// Check if Ollama is running and the model is available
     pub async fn health_check(&self) -> Result<bool> {
         let response = self.client

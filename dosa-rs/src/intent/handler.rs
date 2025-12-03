@@ -7,11 +7,12 @@ use super::hybrid::HybridClassifier;
 use super::IntentClassifier;
 use crate::integrations::{
     OAuthManager, Provider, CalendarAI, GoogleCalendarClient, 
-    GmailClient, ImportanceScorer, EmailAI,
+    GmailClient, ImportanceScorer, EmailAI, SmartReply, WebSearch,
 };
 use crate::knowledge::{KnowledgeGraph, RelationshipType};
 use crate::llm::OllamaClient;
 use crate::router::phase6_commands;
+use crate::intelligence::{ConversationContext, EventReference, EmailReference, PersonReference};
 use anyhow::Result;
 use std::sync::Arc;
 use std::path::Path;
@@ -43,6 +44,8 @@ pub struct IntentHandler<'a> {
     llm: &'a OllamaClient,
     graph: &'a KnowledgeGraph,
     classifier: HybridClassifier,
+    shared_classifier: Option<Arc<HybridClassifier>>,
+    context: Option<&'a mut ConversationContext>,
 }
 
 impl<'a> IntentHandler<'a> {
@@ -51,6 +54,8 @@ impl<'a> IntentHandler<'a> {
             llm,
             graph,
             classifier: HybridClassifier::new(Arc::new(llm.clone())),
+            shared_classifier: None,
+            context: None,
         }
     }
 
@@ -61,17 +66,143 @@ impl<'a> IntentHandler<'a> {
             llm,
             graph,
             classifier,
+            shared_classifier: None,
+            context: None,
+        }
+    }
+
+    /// Create intent handler with conversation context
+    pub fn with_context(
+        llm: &'a OllamaClient,
+        graph: &'a KnowledgeGraph,
+        data_dir: &Path,
+        context: &'a mut ConversationContext,
+    ) -> Self {
+        let classifier = HybridClassifier::try_with_onnx(Arc::new(llm.clone()), data_dir);
+        IntentHandler {
+            llm,
+            graph,
+            classifier,
+            shared_classifier: None,
+            context: Some(context),
+        }
+    }
+
+    /// Create intent handler with a pre-loaded (shared) classifier - avoids reloading the model
+    pub fn with_shared_classifier(
+        llm: &'a OllamaClient,
+        graph: &'a KnowledgeGraph,
+        classifier: Arc<HybridClassifier>,
+        context: &'a mut ConversationContext,
+    ) -> Self {
+        IntentHandler {
+            llm,
+            graph,
+            classifier: HybridClassifier::new(Arc::new(llm.clone())), // Placeholder, won't be used
+            shared_classifier: Some(classifier),
+            context: Some(context),
+        }
+    }
+
+    /// Get the classifier to use (prefer shared if available)
+    fn get_classifier(&self) -> &HybridClassifier {
+        if let Some(ref shared) = self.shared_classifier {
+            shared.as_ref()
+        } else {
+            &self.classifier
         }
     }
 
     /// Classify and handle an input
-    pub async fn handle(&self, input: &str) -> Result<HandleResult> {
-        // Classify the intent
+    pub async fn handle(&mut self, input: &str) -> Result<HandleResult> {
+        // Apply pronoun resolution if we have context
+        let resolved_input = if let Some(ref ctx) = self.context {
+            ctx.resolve_pronouns(input)
+        } else {
+            input.to_string()
+        };
+        
+        // Check if user is providing follow-up info for a pending action
+        if let Some(ref mut ctx) = self.context {
+            if let Some(completed) = ctx.try_complete_pending(&resolved_input) {
+                return self.handle_completed_action(completed).await;
+            }
+            
+            // Check for incremental modifications
+            if ctx.pending_action.is_some() {
+                if ctx.apply_modification(&resolved_input)? {
+                    return Ok(HandleResult::Handled("✓ Updated.".to_string()));
+                }
+            }
+        }
+        
+        // Classify the intent using the (shared or owned) classifier
         let ctx = IntentContext::new(self.is_google_authenticated().await);
-        let result = self.classifier.classify(input, &ctx).await?;
+        let result = self.get_classifier().classify(&resolved_input, &ctx).await?;
         
         // Handle based on intent type
-        self.handle_intent(&result.intent, input).await
+        let handle_result = self.handle_intent(&result.intent, &resolved_input).await?;
+        
+        // Record turn if we have context and it was handled
+        if let HandleResult::Handled(ref output) = handle_result {
+            if let Some(ref mut conv_ctx) = self.context {
+                conv_ctx.add_turn(input, output, Some(&format!("{:?}", result.intent)));
+            }
+        }
+        
+        Ok(handle_result)
+    }
+
+    /// Handle a completed pending action
+    async fn handle_completed_action(&mut self, action: crate::intelligence::PendingAction) -> Result<HandleResult> {
+        use crate::intelligence::PendingAction;
+        
+        match action {
+            PendingAction::CreateEvent { title, start_time, end_time, attendees, recurrence } => {
+                // Now that we have the info, create the event
+                let oauth = match self.get_oauth().await {
+                    Ok(o) => o,
+                    Err(_) => return Ok(HandleResult::NeedsAuth("calendar".to_string())),
+                };
+                
+                let description = format!("Create event '{}' with {}", 
+                    title, 
+                    attendees.join(", ")
+                );
+                
+                // Use CalendarAI with the complete information
+                let calendar_ai = CalendarAI::new(self.llm, self.graph, oauth);
+                let result = calendar_ai.create_from_natural_language(&description).await?;
+                
+                let mut output = result.display_preview();
+                output.push_str("\n\n💡 To confirm, use: /gcal confirm");
+                phase6_commands::store_pending_event(result.event);
+                
+                Ok(HandleResult::Handled(output))
+            }
+            PendingAction::SendEmail { to, subject, body } => {
+                let oauth = match self.get_oauth().await {
+                    Ok(o) => o,
+                    Err(_) => return Ok(HandleResult::NeedsAuth("email".to_string())),
+                };
+                
+                let email_ai = EmailAI::new(self.llm, self.graph, oauth);
+                let input = format!(
+                    "Email {} about '{}' saying: {}",
+                    to.join(", "),
+                    subject,
+                    body.unwrap_or_default()
+                );
+                let result = email_ai.compose_email(&input).await?;
+                
+                let mut output = result.display_preview();
+                output.push_str("\n💡 To send, use: /email confirm");
+                phase6_commands::store_pending_email(result);
+                
+                Ok(HandleResult::Handled(output))
+            }
+            _ => Ok(HandleResult::NotHandled),
+        }
     }
 
     /// Handle a specific intent
@@ -121,6 +252,11 @@ impl<'a> IntentHandler<'a> {
                 Ok(HandleResult::NotHandled)
             }
 
+            // Web search - weather, facts, general internet queries
+            Intent::WebSearch { query } => {
+                self.handle_web_search(query).await
+            }
+
             // Conversation fallback
             Intent::Conversation { .. } => {
                 Ok(HandleResult::NotHandled)
@@ -150,6 +286,21 @@ impl<'a> IntentHandler<'a> {
         }
         
         Ok(oauth)
+    }
+
+    // Web search handler
+    
+    async fn handle_web_search(&self, query: &str) -> Result<HandleResult> {
+        let web_search = WebSearch::new();
+        
+        match web_search.quick_answer(query).await {
+            Ok(answer) => Ok(HandleResult::Handled(answer)),
+            Err(e) => {
+                // If web search fails, return NotHandled to fall through to LLM
+                // which can still provide a reasonable response
+                Ok(HandleResult::NotHandled)
+            }
+        }
     }
 
     // Calendar handlers
@@ -546,6 +697,36 @@ Respond with ONLY valid JSON array:"#,
             }
         }
         
+        // Pattern: "<Name> works at <Organization>" or "<Name> studies at <Organization>"
+        let relationship_patterns = [
+            (r"(?i)^(.+?)\s+works?\s+(?:at|for)\s+(.+)$", "works_at"),
+            (r"(?i)^(.+?)\s+(?:studies|studied|is studying)\s+at\s+(.+)$", "studies_at"),
+            (r"(?i)^(.+?)\s+manages?\s+(.+)$", "manages"),
+            (r"(?i)^(.+?)\s+knows?\s+(.+)$", "knows"),
+            (r"(?i)^(.+?)\s+works?\s+on\s+(.+)$", "works_on"),
+            (r"(?i)^(.+?)\s+(?:is|are)\s+(?:at|from)\s+(.+)$", "works_at"),
+        ];
+        
+        for (pattern, rel_type) in relationship_patterns {
+            if let Some(captures) = regex::Regex::new(pattern)
+                .ok()
+                .and_then(|re| re.captures(input))
+            {
+                let person_name = captures.get(1)?.as_str().trim().to_string();
+                let target = captures.get(2)?.as_str().trim().to_string();
+                
+                // Skip if names are too long (probably not a name)
+                if person_name.split_whitespace().count() <= 4 && target.split_whitespace().count() <= 6 {
+                    actions.push(ContactAction::AddRelationship {
+                        person: person_name,
+                        relationship: rel_type.to_string(),
+                        target,
+                    });
+                    return Some(actions);
+                }
+            }
+        }
+        
         None
     }
 
@@ -602,11 +783,16 @@ Respond with ONLY valid JSON array:"#,
 
                     // Find or create the target entity
                     let target_entity = match relationship.as_str() {
-                        "works_at" | "studies_at" => {
-                            match self.graph.find_organization(target.as_str()) {
-                                Ok(Some(e)) => e,
-                                Ok(None) => {
-                                    // Create the organization
+                        "studies_at" => {
+                            // For studies_at, first try to find by exact name, then fuzzy match
+                            let found = self.graph.find_by_name(target.as_str()).ok().flatten()
+                                .or_else(|| self.find_entity_fuzzy(target.as_str(), &["university", "organization"]))
+                                .or_else(|| self.graph.find_organization(target.as_str()).ok().flatten());
+                            
+                            match found {
+                                Some(e) => e,
+                                None => {
+                                    // Create as organization (educational institution)
                                     match self.graph.add_organization(target.as_str()) {
                                         Ok(e) => {
                                             results.push(format!("  (Created organization: {})", target));
@@ -618,9 +804,26 @@ Respond with ONLY valid JSON array:"#,
                                         }
                                     }
                                 }
-                                Err(e) => {
-                                    results.push(format!("✗ Error: {}", e));
-                                    continue;
+                            }
+                        }
+                        "works_at" => {
+                            // For works_at, find or create organization
+                            let found = self.graph.find_organization(target.as_str()).ok().flatten()
+                                .or_else(|| self.find_entity_fuzzy(target.as_str(), &["organization"]));
+                            
+                            match found {
+                                Some(e) => e,
+                                None => {
+                                    match self.graph.add_organization(target.as_str()) {
+                                        Ok(e) => {
+                                            results.push(format!("  (Created organization: {})", target));
+                                            e
+                                        }
+                                        Err(e) => {
+                                            results.push(format!("✗ Could not create org: {}", e));
+                                            continue;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -689,6 +892,54 @@ Respond with ONLY valid JSON array:"#,
 
         let output = format!("👤 Contact Update:\n{}", results.join("\n"));
         Ok(HandleResult::Handled(output))
+    }
+
+    /// Find an entity by fuzzy name matching
+    /// Searches through entities of the given types and returns the best match
+    fn find_entity_fuzzy(&self, name: &str, entity_types: &[&str]) -> Option<crate::knowledge::entities::Entity> {
+        use strsim::jaro_winkler;
+        
+        let name_lower = name.to_lowercase();
+        let mut best_match: Option<(crate::knowledge::entities::Entity, f64)> = None;
+        const THRESHOLD: f64 = 0.75;
+        
+        // Get all entities and filter by type
+        if let Ok(all_entities) = self.graph.database().list_all_entities() {
+            for (id, entity_name, entity_type) in all_entities {
+                // Check if this entity type is in our search list
+                if !entity_types.iter().any(|t| *t == entity_type.to_lowercase()) {
+                    continue;
+                }
+                
+                let entity_name_lower = entity_name.to_lowercase();
+                
+                // Calculate similarity
+                let similarity = jaro_winkler(&name_lower, &entity_name_lower);
+                
+                // Also check if one contains the other (partial match)
+                let partial_match = entity_name_lower.contains(&name_lower) 
+                    || name_lower.contains(&entity_name_lower);
+                
+                let effective_score = if partial_match {
+                    similarity.max(0.8) // Boost partial matches
+                } else {
+                    similarity
+                };
+                
+                if effective_score >= THRESHOLD {
+                    if best_match.is_none() || effective_score > best_match.as_ref().unwrap().1 {
+                        let entity = crate::knowledge::entities::Entity::new(
+                            id,
+                            crate::knowledge::entities::EntityType::from_str(&entity_type),
+                            entity_name
+                        );
+                        best_match = Some((entity, effective_score));
+                    }
+                }
+            }
+        }
+        
+        best_match.map(|(entity, _)| entity)
     }
 
     /// Extract JSON array from LLM response

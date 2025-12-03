@@ -180,6 +180,7 @@ Respond with JSON only:
             Intent::EmailQuery { .. } => "email_query".to_string(),
             Intent::ContactUpdate { .. } => "contact_update".to_string(),
             Intent::KnowledgeQuery { .. } => "knowledge_query".to_string(),
+            Intent::WebSearch { .. } => "web_search".to_string(),
             Intent::Conversation { .. } => "conversation".to_string(),
             Intent::Command(_) => "command".to_string(),
             Intent::Ambiguous { .. } => "ambiguous".to_string(),

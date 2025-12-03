@@ -99,15 +99,15 @@ impl<'a> GraphRAG<'a> {
         let lower = input.to_lowercase();
         
         // "Who can help with [project]?"
-        if (lower.contains("who can help") || lower.contains("who could help") || 
-            lower.contains("help with") || lower.contains("help on")) {
+        if lower.contains("who can help") || lower.contains("who could help") || 
+            lower.contains("help with") || lower.contains("help on") {
             if let Some(project) = self.extract_after(&lower, &["with ", "on "]) {
                 return Some(MultiHopQuery::WhoCanHelp { project_name: project });
             }
         }
         
         // "Find people in [location] working on [project]"
-        if (lower.contains("in ") && lower.contains("working on")) || 
+        if (lower.contains("in ") && lower.contains("working on")) ||
            (lower.contains("from ") && lower.contains("on project")) {
             let location = self.extract_after(&lower, &["in ", "from "]);
             let project = self.extract_after(&lower, &["working on ", "on project "]);

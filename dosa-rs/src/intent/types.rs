@@ -24,6 +24,9 @@ pub enum Intent {
     ContactUpdate { description: String },  // Add person, set email, etc.
     KnowledgeQuery { query: String },
     
+    // Web search - for queries that need internet (weather, facts, etc.)
+    WebSearch { query: String },
+    
     // Fallback
     Conversation { input: String },
     

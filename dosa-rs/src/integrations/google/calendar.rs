@@ -3,7 +3,7 @@
 //! Provides access to Google Calendar events for display, summarization, and creation.
 
 use anyhow::{anyhow, Result};
-use chrono::{DateTime, Local, Utc, Duration, NaiveDate, NaiveTime, Datelike};
+use chrono::{DateTime, Local, Utc, Duration, NaiveDate, NaiveTime, Datelike, Timelike};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -569,6 +569,248 @@ impl GoogleCalendarClient {
 
         Ok(output.trim().to_string())
     }
+
+    // ========================================================================
+    // Conflict Detection (FreeBusy API)
+    // ========================================================================
+
+    /// Check for calendar conflicts in a time range
+    /// Returns list of conflicting events
+    pub async fn check_conflicts(
+        &self,
+        start: DateTime<Local>,
+        end: DateTime<Local>,
+    ) -> Result<Vec<ConflictInfo>> {
+        let token = self.oauth.get_token(Provider::Google).await?;
+
+        let url = format!("{}/freeBusy", CALENDAR_API_BASE);
+
+        let body = serde_json::json!({
+            "timeMin": start.with_timezone(&Utc).to_rfc3339(),
+            "timeMax": end.with_timezone(&Utc).to_rfc3339(),
+            "items": [{ "id": "primary" }]
+        });
+
+        let resp = self.http
+            .post(&url)
+            .bearer_auth(&token)
+            .json(&body)
+            .send()
+            .await?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body_text = resp.text().await.unwrap_or_default();
+            return Err(anyhow!("FreeBusy API error ({}): {}", status, body_text));
+        }
+
+        let data: FreeBusyResponse = resp.json().await?;
+        
+        // Extract busy periods from primary calendar
+        let mut conflicts = Vec::new();
+        
+        if let Some(calendars) = data.calendars {
+            if let Some(primary) = calendars.get("primary") {
+                if let Some(busy) = &primary.busy {
+                    for period in busy {
+                        // Find the actual event for this busy period
+                        let event = self.find_event_at_time(&period.start, &period.end).await?;
+                        
+                        conflicts.push(ConflictInfo {
+                            start: period.start.clone(),
+                            end: period.end.clone(),
+                            event_title: event.as_ref().map(|e| e.title().to_string()),
+                            event_id: event.as_ref().map(|e| e.id.clone()),
+                        });
+                    }
+                }
+            }
+        }
+
+        Ok(conflicts)
+    }
+
+    /// Find an event at a specific time (helper for conflict info)
+    async fn find_event_at_time(
+        &self,
+        start: &str,
+        end: &str,
+    ) -> Result<Option<GCalEvent>> {
+        // Parse the ISO timestamps
+        let start_dt = DateTime::parse_from_rfc3339(start)
+            .map(|dt| dt.with_timezone(&Utc))
+            .unwrap_or(Utc::now());
+        let end_dt = DateTime::parse_from_rfc3339(end)
+            .map(|dt| dt.with_timezone(&Utc))
+            .unwrap_or(Utc::now());
+
+        let events = self.list_events(start_dt, end_dt, Some(5)).await?;
+        
+        // Find the event that matches this time slot
+        Ok(events.into_iter().find(|e| {
+            if let (Some(es), Some(ee)) = (e.start_time(), e.end_time()) {
+                let es_utc = es.with_timezone(&Utc);
+                let ee_utc = ee.with_timezone(&Utc);
+                // Check for overlap
+                es_utc <= end_dt && ee_utc >= start_dt
+            } else {
+                false
+            }
+        }))
+    }
+
+    /// Check if a proposed event would conflict, returning conflicts and suggestions
+    pub async fn check_event_conflicts(
+        &self,
+        start: DateTime<Local>,
+        end: DateTime<Local>,
+    ) -> Result<ConflictCheckResult> {
+        let conflicts = self.check_conflicts(start, end).await?;
+
+        if conflicts.is_empty() {
+            return Ok(ConflictCheckResult {
+                has_conflict: false,
+                conflicts: vec![],
+                suggested_times: vec![],
+            });
+        }
+
+        // Find alternative times (try next 3 available slots)
+        let suggestions = self.find_available_slots(start, end, 3).await?;
+
+        Ok(ConflictCheckResult {
+            has_conflict: true,
+            conflicts,
+            suggested_times: suggestions,
+        })
+    }
+
+    /// Find available time slots after a given start time
+    async fn find_available_slots(
+        &self,
+        start: DateTime<Local>,
+        end: DateTime<Local>,
+        count: usize,
+    ) -> Result<Vec<SuggestedTime>> {
+        let duration = end.signed_duration_since(start);
+        let mut suggestions = Vec::new();
+        let mut check_start = start;
+        
+        // Look up to 7 days ahead
+        let max_end = start + Duration::days(7);
+        
+        while suggestions.len() < count && check_start < max_end {
+            let check_end = check_start + duration;
+            
+            // Skip if outside business hours (9 AM - 6 PM)
+            let hour = check_start.hour();
+            if hour < 9 || hour >= 18 {
+                check_start = check_start + Duration::hours(1);
+                continue;
+            }
+            
+            let conflicts = self.check_conflicts(check_start, check_end).await?;
+            
+            if conflicts.is_empty() {
+                suggestions.push(SuggestedTime {
+                    start: check_start,
+                    end: check_end,
+                    reason: if check_start.date_naive() == start.date_naive() {
+                        "Same day".to_string()
+                    } else {
+                        format!("On {}", check_start.format("%A"))
+                    },
+                });
+            }
+            
+            // Move to next 30-minute slot
+            check_start = check_start + Duration::minutes(30);
+        }
+
+        Ok(suggestions)
+    }
+}
+
+/// FreeBusy API response structures
+#[derive(Debug, Deserialize)]
+struct FreeBusyResponse {
+    calendars: Option<std::collections::HashMap<String, FreeBusyCalendar>>,
+}
+
+#[derive(Debug, Deserialize)]
+struct FreeBusyCalendar {
+    busy: Option<Vec<BusyPeriod>>,
+}
+
+#[derive(Debug, Deserialize)]
+struct BusyPeriod {
+    start: String,
+    end: String,
+}
+
+/// Information about a calendar conflict
+#[derive(Debug, Clone)]
+pub struct ConflictInfo {
+    pub start: String,
+    pub end: String,
+    pub event_title: Option<String>,
+    pub event_id: Option<String>,
+}
+
+impl ConflictInfo {
+    /// Format for user display
+    pub fn display(&self) -> String {
+        if let Some(ref title) = self.event_title {
+            format!("\"{}\"", title)
+        } else {
+            "Busy".to_string()
+        }
+    }
+}
+
+/// Result of checking for conflicts
+#[derive(Debug)]
+pub struct ConflictCheckResult {
+    pub has_conflict: bool,
+    pub conflicts: Vec<ConflictInfo>,
+    pub suggested_times: Vec<SuggestedTime>,
+}
+
+impl ConflictCheckResult {
+    /// Format as user-friendly message
+    pub fn to_message(&self) -> String {
+        if !self.has_conflict {
+            return "✓ No conflicts found".to_string();
+        }
+
+        let mut msg = String::from("⚠️ Conflict detected:\n");
+        
+        for conflict in &self.conflicts {
+            msg.push_str(&format!("  • {}\n", conflict.display()));
+        }
+
+        if !self.suggested_times.is_empty() {
+            msg.push_str("\n💡 Suggested alternatives:\n");
+            for (i, suggestion) in self.suggested_times.iter().take(3).enumerate() {
+                msg.push_str(&format!("  {}. {} ({}) - {}\n", 
+                    i + 1,
+                    suggestion.start.format("%I:%M %p"),
+                    suggestion.reason,
+                    suggestion.start.format("%A, %b %d")
+                ));
+            }
+        }
+
+        msg
+    }
+}
+
+/// A suggested available time slot
+#[derive(Debug, Clone)]
+pub struct SuggestedTime {
+    pub start: DateTime<Local>,
+    pub end: DateTime<Local>,
+    pub reason: String,
 }
 
 // ============================================================================
@@ -585,6 +827,7 @@ pub struct NewCalendarEvent {
     pub end: DateTime<Local>,
     pub attendees: Vec<String>,  // Email addresses
     pub all_day: bool,
+    pub recurrence: Option<String>,  // RRULE string for recurring events
 }
 
 impl NewCalendarEvent {
@@ -597,6 +840,7 @@ impl NewCalendarEvent {
             end,
             attendees: Vec::new(),
             all_day: false,
+            recurrence: None,
         }
     }
 
@@ -622,6 +866,11 @@ impl NewCalendarEvent {
 
     pub fn all_day(mut self) -> Self {
         self.all_day = true;
+        self
+    }
+
+    pub fn with_recurrence(mut self, rrule: &str) -> Self {
+        self.recurrence = Some(rrule.to_string());
         self
     }
 
@@ -666,6 +915,11 @@ impl NewCalendarEvent {
             event["attendees"] = serde_json::json!(attendees);
         }
 
+        // Add recurrence rule for recurring events
+        if let Some(ref rrule) = self.recurrence {
+            event["recurrence"] = serde_json::json!([rrule]);
+        }
+
         event
     }
 
@@ -692,6 +946,11 @@ impl NewCalendarEvent {
 
         if let Some(ref desc) = self.description {
             output.push_str(&format!("   📝 {}\n", desc));
+        }
+
+        // Show recurrence info
+        if let Some(ref rrule) = self.recurrence {
+            output.push_str(&format!("   🔄 {}\n", rrule_to_display(rrule)));
         }
 
         output
@@ -835,6 +1094,8 @@ pub struct ParsedEvent {
     pub attendees: Vec<String>,    // Names that need to be resolved
     pub description: Option<String>,
     pub is_all_day: bool,
+    #[serde(default)]
+    pub recurrence: Option<String>, // "weekly", "every Monday", "monthly", etc.
 }
 
 impl ParsedEvent {
@@ -880,6 +1141,13 @@ impl ParsedEvent {
 
         if is_all_day || self.is_all_day {
             event = event.all_day();
+        }
+
+        // Handle recurrence - parse natural language into RRULE
+        if let Some(ref recurrence_text) = self.recurrence {
+            if let Ok(Some(rule)) = crate::calendar::parsing::parse_recurrence(recurrence_text) {
+                event = event.with_recurrence(&rule.rrule);
+            }
         }
 
         Ok(event)
@@ -986,4 +1254,78 @@ pub fn parse_time(s: &str) -> Result<NaiveTime> {
     }
     
     Err(anyhow!("Could not parse time: {}", s))
+}
+
+/// Convert RRULE string to human-readable description
+fn rrule_to_display(rrule: &str) -> String {
+    let lower = rrule.to_uppercase();
+    
+    // Parse frequency
+    let freq = if lower.contains("DAILY") {
+        "Daily"
+    } else if lower.contains("WEEKLY") {
+        "Weekly"
+    } else if lower.contains("MONTHLY") {
+        "Monthly"
+    } else if lower.contains("YEARLY") {
+        "Yearly"
+    } else {
+        return rrule.to_string();
+    };
+
+    // Parse interval
+    let interval = if let Some(pos) = lower.find("INTERVAL=") {
+        let rest = &lower[pos + 9..];
+        let end = rest.find(|c: char| !c.is_ascii_digit()).unwrap_or(rest.len());
+        rest[..end].parse::<u32>().unwrap_or(1)
+    } else {
+        1
+    };
+
+    // Parse BYDAY for weekly
+    let days = if let Some(pos) = lower.find("BYDAY=") {
+        let rest = &lower[pos + 6..];
+        let end = rest.find(';').unwrap_or(rest.len());
+        let day_map = [
+            ("MO", "Mon"), ("TU", "Tue"), ("WE", "Wed"),
+            ("TH", "Thu"), ("FR", "Fri"), ("SA", "Sat"), ("SU", "Sun")
+        ];
+        let day_codes: Vec<&str> = rest[..end].split(',').collect();
+        let day_names: Vec<&str> = day_codes.iter()
+            .filter_map(|code| {
+                // Handle ordinal prefixes like "1MO", "-1FR"
+                let clean = code.trim_start_matches(|c: char| c == '-' || c.is_ascii_digit());
+                day_map.iter().find(|(c, _)| *c == clean).map(|(_, name)| *name)
+            })
+            .collect();
+        if day_names.is_empty() {
+            None
+        } else {
+            Some(day_names.join(", "))
+        }
+    } else {
+        None
+    };
+
+    // Build description
+    if interval == 1 {
+        if let Some(day_list) = days {
+            format!("{} on {}", freq, day_list)
+        } else {
+            freq.to_string()
+        }
+    } else {
+        let unit = match freq {
+            "Daily" => "days",
+            "Weekly" => "weeks",
+            "Monthly" => "months",
+            "Yearly" => "years",
+            _ => "times",
+        };
+        if let Some(day_list) = days {
+            format!("Every {} {} on {}", interval, unit, day_list)
+        } else {
+            format!("Every {} {}", interval, unit)
+        }
+    }
 }

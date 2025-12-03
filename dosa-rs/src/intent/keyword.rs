@@ -306,20 +306,57 @@ impl KeywordClassifier {
     fn score_knowledge_query(&self, lower: &str) -> f32 {
         let mut score: f32 = 0.0;
         
-        let kg_patterns = ["who is", "who works", "what is", "tell me about",
-                          "where does", "what does", "how do i contact",
-                          "who can help", "who knows"];
-        if kg_patterns.iter().any(|k| lower.contains(k)) {
-            score += 0.6;
+        // Strong personal contact patterns - high score
+        let strong_personal_patterns = [
+            "do i know", "do we have", "contact for", "who do i know",
+            "my contacts", "my network", "in my contacts", "anyone who",
+            "someone who", "people who", "find someone", "find people",
+            "contacts at", "who from", "person in",
+        ];
+        if strong_personal_patterns.iter().any(|k| lower.contains(k)) {
+            score += 0.85;
         }
         
-        // Questions about relationships
-        let relationship_words = ["manager", "team", "works at", "works with", "colleague"];
+        // Direct person queries - moderate-high score
+        let person_patterns = ["who is", "who works", "tell me about", 
+                              "where does", "what does", "how do i contact",
+                              "who can help", "who knows", "what's", "background on"];
+        if person_patterns.iter().any(|k| lower.contains(k)) {
+            score += 0.7;
+        }
+        
+        // Questions about relationships - add score
+        let relationship_words = ["manager", "team", "works at", "works with", 
+                                 "colleague", "coworker", "reports to", "works for"];
         if relationship_words.iter().any(|k| lower.contains(k)) {
-            score += 0.3;
+            score += 0.4;
         }
         
-        score.min(1.0)
+        // Skill-based queries
+        let skill_patterns = ["knows", "experience with", "experienced in", "skilled in",
+                             "expert in", "good at", "familiar with", "can help with",
+                             "python", "rust", "javascript", "react", "machine learning"];
+        if skill_patterns.iter().any(|k| lower.contains(k)) {
+            score += 0.5;
+        }
+        
+        // Organization-related queries
+        let org_patterns = ["at google", "at meta", "at apple", "at microsoft", 
+                           "at amazon", "at netflix", "at uber", "at airbnb",
+                           "at stripe", "from stanford", "from mit", "from berkeley",
+                           "engineers at", "developers at", "team at"];
+        if org_patterns.iter().any(|k| lower.contains(k)) {
+            score += 0.4;
+        }
+        
+        // Negative signals - reduce score for web search indicators
+        let web_indicators = ["weather", "stock", "price", "news", "latest", 
+                             "ceo of", "founder of", "define", "definition"];
+        if web_indicators.iter().any(|k| lower.contains(k)) {
+            score -= 0.4;
+        }
+        
+        score.max(0.0).min(1.0)
     }
     
     /// Check if this is emailing ABOUT a change (not changing calendar)
@@ -451,10 +488,91 @@ impl KeywordClassifier {
             ));
         }
         
+        // Web search scoring
+        let web_search = self.score_web_search(&lower);
+        if web_search > 0.3 {
+            candidates.push((
+                Intent::WebSearch { query: input.to_string() },
+                web_search
+            ));
+        }
+        
         // Sort by confidence descending
         candidates.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
         
         candidates
+    }
+    
+    /// Score how well input matches web search patterns
+    fn score_web_search(&self, lower: &str) -> f32 {
+        let mut score: f32 = 0.0;
+        
+        // Weather queries - very strong signal
+        if lower.contains("weather") || lower.contains("temperature") || lower.contains("forecast") {
+            score += 0.9;
+        }
+        
+        // Stock/finance queries
+        let stock_patterns = ["stock price", "share price", "market cap", "trading at", "worth", "earnings"];
+        if stock_patterns.iter().any(|p| lower.contains(p)) {
+            score += 0.8;
+        }
+        
+        // CEO/company leadership queries
+        let ceo_patterns = ["ceo of", "who runs", "who founded", "who started", "who leads", "founder of"];
+        if ceo_patterns.iter().any(|p| lower.contains(p)) {
+            score += 0.85;
+        }
+        
+        // "what is" for definitions - but not "who is" (could be personal contact)
+        if lower.starts_with("what is") && !lower.contains("my contact") && !lower.contains("do i know") {
+            score += 0.7;
+        }
+        
+        // "who is" should NOT be scored high here - prefer knowledge_query for personal contacts
+        // Only score if it has famous person indicators
+        if lower.starts_with("who is") {
+            // Check for famous person context
+            let famous_indicators = ["ceo", "founder", "president", "actor", "singer", "politician", "famous"];
+            if famous_indicators.iter().any(|p| lower.contains(p)) {
+                score += 0.6;
+            }
+            // Otherwise don't score - let knowledge_query handle it
+        }
+        
+        // General search patterns
+        let search_patterns = ["search for", "look up", "google", "define", "definition of"];
+        if search_patterns.iter().any(|p| lower.contains(p)) {
+            score += 0.7;
+        }
+        
+        // How to queries
+        if lower.starts_with("how to") || lower.starts_with("how do") || lower.starts_with("how can") {
+            score += 0.75;
+        }
+        
+        // News queries
+        if lower.contains("news about") || lower.contains("latest on") || lower.starts_with("news") {
+            score += 0.7;
+        }
+        
+        // Comparison queries
+        if lower.contains(" vs ") || lower.contains(" versus ") || lower.contains("compare ") {
+            score += 0.6;
+        }
+        
+        // Recipe queries
+        if lower.contains("recipe") || lower.contains("how to make") || lower.contains("how to cook") {
+            score += 0.7;
+        }
+        
+        // Filter out personal/local queries that should stay local
+        if lower.contains("my calendar") || lower.contains("my contacts") || 
+           lower.contains("my emails") || lower.contains("who do i know") {
+            return 0.0;
+        }
+        
+        score.min(1.0)
     }
 }
 

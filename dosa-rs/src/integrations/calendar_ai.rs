@@ -10,6 +10,7 @@ use crate::llm::OllamaClient;
 use crate::knowledge::KnowledgeGraph;
 use crate::integrations::google::calendar::{GoogleCalendarClient, NewCalendarEvent, ParsedEvent, EventUpdate, GCalEvent};
 use crate::integrations::oauth::{OAuthManager, Provider};
+use crate::calendar::parsing::{parse_datetime, parse_recurrence};
 
 /// AI-powered calendar assistant
 pub struct CalendarAI<'a> {
@@ -40,8 +41,13 @@ Extract:
 - attendees: List of people names (empty if none)
 - description: Details (null if none)
 - is_all_day: true if all-day event
+- recurrence: Repetition pattern (null if one-time, or "daily", "weekly", "every Monday", "every 2 weeks", "monthly", "every month on first Monday", etc.)
 
-Example: {{"title": "Lunch", "date": "tomorrow", "time": "12:00", "duration_minutes": 60, "location": null, "attendees": [], "description": null, "is_all_day": false}}"#,
+Example 1: {{"title": "Lunch", "date": "tomorrow", "time": "12:00", "duration_minutes": 60, "location": null, "attendees": [], "description": null, "is_all_day": false, "recurrence": null}}
+
+Example 2: {{"title": "Team Standup", "date": "monday", "time": "10:00", "duration_minutes": 30, "location": null, "attendees": [], "description": null, "is_all_day": false, "recurrence": "every Monday"}}
+
+Example 3: {{"title": "Weekly Review", "date": "friday", "time": "14:00", "duration_minutes": 60, "location": null, "attendees": [], "description": null, "is_all_day": false, "recurrence": "weekly"}}"#,
             today, input
         );
 
@@ -115,12 +121,21 @@ Example: {{"title": "Lunch", "date": "tomorrow", "time": "12:00", "duration_minu
 
         // Step 3: Build the event
         let event = parsed.to_calendar_event(resolved_emails)?;
+        
+        // Step 4: Check for conflicts
+        let client = GoogleCalendarClient::new(self.oauth.clone());
+        let conflicts = if !event.all_day {
+            client.check_conflicts(event.start, event.end).await.unwrap_or_default()
+        } else {
+            Vec::new()
+        };
 
         Ok(EventCreationResult {
             event,
             parsed,
             resolved_attendees: resolved,
             unresolved_names,
+            conflicts,
         })
     }
 
@@ -358,6 +373,7 @@ pub struct EventCreationResult {
     pub parsed: ParsedEvent,
     pub resolved_attendees: Vec<ResolvedAttendee>,
     pub unresolved_names: Vec<String>,
+    pub conflicts: Vec<crate::integrations::google::calendar::ConflictInfo>,
 }
 
 impl EventCreationResult {
@@ -380,11 +396,24 @@ impl EventCreationResult {
             }
         }
 
+        // Show conflicts if any
+        if !self.conflicts.is_empty() {
+            output.push_str("\n⚠️  Scheduling Conflicts:\n");
+            for conflict in &self.conflicts {
+                output.push_str(&format!("   {}\n", conflict.display()));
+            }
+            output.push_str("\n   The event will still be created, but you may want to adjust the time.\n");
+        }
+
         output
     }
 
     pub fn has_unresolved(&self) -> bool {
         !self.unresolved_names.is_empty()
+    }
+    
+    pub fn has_conflicts(&self) -> bool {
+        !self.conflicts.is_empty()
     }
 }
 

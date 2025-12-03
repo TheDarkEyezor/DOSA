@@ -10,3 +10,4 @@ email_compose
 email_query
 email_reply
 knowledge_query
+web_search

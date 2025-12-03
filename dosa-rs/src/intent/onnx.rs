@@ -372,11 +372,14 @@ impl OnnxClassifier {
             "email_query" => {
                 let query_type = self.infer_email_query_type(raw_input, &result.slots);
                 Intent::EmailQuery { query_type }
-            }
+            },
             "contact_update" => Intent::ContactUpdate {
                 description: raw_input.to_string(),
             },
             "knowledge_query" => Intent::KnowledgeQuery {
+                query: raw_input.to_string(),
+            },
+            "web_search" => Intent::WebSearch {
                 query: raw_input.to_string(),
             },
             "command" => Intent::Command(raw_input.to_string()),
