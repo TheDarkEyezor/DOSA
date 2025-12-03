@@ -5,7 +5,7 @@ use std::path::Path;
 // Import the modules we need to test
 #[tokio::test]
 async fn test_text_chunking() {
-    use dosa::intelligence::chunking::{TextChunker, ChunkConfig};
+    use samantha::intelligence::chunking::{TextChunker, ChunkConfig};
     
     let chunker = TextChunker::with_config(ChunkConfig {
         chunk_size: 100,
@@ -33,7 +33,7 @@ This is the third paragraph with even more content to test chunking properly."#;
 
 #[test]
 fn test_cosine_similarity() {
-    use dosa::intelligence::embeddings::cosine_similarity;
+    use samantha::intelligence::embeddings::cosine_similarity;
     
     // Identical vectors should have similarity 1.0
     let a = vec![1.0f32, 0.0, 0.0];
@@ -56,7 +56,7 @@ fn test_cosine_similarity() {
 
 #[test]
 fn test_keyword_scorer() {
-    use dosa::intelligence::chunking::KeywordScorer;
+    use samantha::intelligence::chunking::KeywordScorer;
     
     let scorer = KeywordScorer::new();
     
@@ -79,7 +79,7 @@ fn test_keyword_scorer() {
 
 #[test]
 fn test_chunk_config_default() {
-    use dosa::intelligence::chunking::ChunkConfig;
+    use samantha::intelligence::chunking::ChunkConfig;
     
     let config = ChunkConfig::default();
     

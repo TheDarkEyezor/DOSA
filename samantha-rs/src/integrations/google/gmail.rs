@@ -186,6 +186,75 @@ struct MessagePart {
     parts: Option<Vec<MessagePart>>,
 }
 
+/// Thread response from Gmail API
+#[derive(Debug, Deserialize)]
+struct ThreadResponse {
+    id: String,
+    messages: Option<Vec<MessageResponse>>,
+}
+
+/// Email thread (conversation) with multiple messages
+#[derive(Debug, Clone)]
+pub struct EmailThread {
+    pub id: String,
+    pub subject: String,
+    pub participants: Vec<String>,
+    pub messages: Vec<Email>,
+}
+
+impl EmailThread {
+    /// Format thread for display
+    pub fn display(&self) -> String {
+        let mut output = format!(
+            "📧 Thread: {}\n   Participants: {}\n   Messages: {}\n\n",
+            self.subject,
+            self.participants.join(", "),
+            self.messages.len()
+        );
+        
+        for (i, msg) in self.messages.iter().enumerate() {
+            output.push_str(&format!(
+                "--- Message {} ({}) ---\n",
+                i + 1,
+                msg.date.format("%b %d, %I:%M %p")
+            ));
+            output.push_str(&format!("From: {}\n", msg.from));
+            if !msg.to.is_empty() {
+                output.push_str(&format!("To: {}\n", msg.to.join(", ")));
+            }
+            if let Some(ref text) = msg.body_text {
+                let preview = if text.len() > 500 {
+                    format!("{}...", &text[..500])
+                } else {
+                    text.clone()
+                };
+                output.push_str(&format!("\n{}\n\n", preview));
+            }
+        }
+        
+        output
+    }
+    
+    /// Get conversation as text for summarization
+    pub fn as_conversation_text(&self) -> String {
+        let mut text = format!("Subject: {}\n\n", self.subject);
+        
+        for msg in &self.messages {
+            text.push_str(&format!(
+                "[{} - {}]\n",
+                msg.from,
+                msg.date.format("%b %d %Y, %I:%M %p")
+            ));
+            if let Some(ref body) = msg.body_text {
+                text.push_str(body);
+                text.push_str("\n\n");
+            }
+        }
+        
+        text
+    }
+}
+
 /// Gmail client
 pub struct GmailClient {
     oauth: Arc<OAuthManager>,
@@ -479,6 +548,139 @@ impl GmailClient {
     pub async fn get_from(&self, sender: &str, max: usize) -> Result<Vec<EmailSummary>> {
         let query = format!("from:{}", sender);
         self.list_messages(Some(&query), max).await
+    }
+
+    /// Get all messages in a conversation thread
+    pub async fn get_thread(&self, thread_id: &str) -> Result<Vec<Email>> {
+        let token = self.oauth.get_token(Provider::Google).await?;
+        
+        let url = format!("{}/users/me/threads/{}?format=full", GMAIL_API_BASE, thread_id);
+        
+        let resp = self.http
+            .get(&url)
+            .bearer_auth(&token)
+            .send()
+            .await?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let body = resp.text().await.unwrap_or_default();
+            return Err(anyhow!("Gmail thread error {}: {}", status, body));
+        }
+
+        let thread: ThreadResponse = resp.json().await?;
+        
+        let mut emails = Vec::new();
+        for msg in thread.messages.unwrap_or_default() {
+            if let Ok(email) = self.parse_message_to_email(msg).await {
+                emails.push(email);
+            }
+        }
+        
+        // Sort by date ascending (oldest first)
+        emails.sort_by(|a, b| a.date.cmp(&b.date));
+        
+        Ok(emails)
+    }
+    
+    /// Get conversation with a specific person (groups by thread)
+    pub async fn get_conversation_with(&self, person: &str, max_threads: usize) -> Result<Vec<EmailThread>> {
+        // Search for emails involving this person
+        let query = format!("from:{} OR to:{}", person, person);
+        let messages = self.list_messages(Some(&query), max_threads * 5).await?;
+        
+        // Group by thread_id
+        let mut thread_ids: Vec<String> = messages.iter()
+            .map(|m| m.thread_id.clone())
+            .collect();
+        thread_ids.dedup();
+        thread_ids.truncate(max_threads);
+        
+        let mut threads = Vec::new();
+        for thread_id in thread_ids {
+            if let Ok(emails) = self.get_thread(&thread_id).await {
+                if !emails.is_empty() {
+                    threads.push(EmailThread {
+                        id: thread_id,
+                        subject: emails.first().map(|e| e.subject.clone()).unwrap_or_default(),
+                        participants: Self::extract_participants(&emails),
+                        messages: emails,
+                    });
+                }
+            }
+        }
+        
+        Ok(threads)
+    }
+    
+    /// Extract unique participants from a list of emails
+    fn extract_participants(emails: &[Email]) -> Vec<String> {
+        let mut participants: Vec<String> = emails.iter()
+            .flat_map(|e| {
+                let mut p = vec![e.from.clone()];
+                p.extend(e.to.iter().cloned());
+                p.extend(e.cc.iter().cloned());
+                p
+            })
+            .collect();
+        participants.sort();
+        participants.dedup();
+        participants
+    }
+    
+    /// Parse a raw message into an Email struct (internal helper)
+    async fn parse_message_to_email(&self, msg: MessageResponse) -> Result<Email> {
+        // Extract headers using closure
+        let get_header = |name: &str| -> String {
+            msg.payload.as_ref()
+                .and_then(|p| p.headers.as_ref())
+                .and_then(|headers| {
+                    headers.iter()
+                        .find(|h| h.name.eq_ignore_ascii_case(name))
+                        .map(|h| h.value.clone())
+                })
+                .unwrap_or_default()
+        };
+
+        let labels = msg.label_ids.clone().unwrap_or_default();
+        let is_unread = labels.contains(&"UNREAD".to_string());
+
+        // Parse date from internal_date (milliseconds since epoch)
+        let date = msg.internal_date
+            .as_ref()
+            .and_then(|d| d.parse::<i64>().ok())
+            .and_then(|ts| DateTime::from_timestamp(ts / 1000, 0))
+            .unwrap_or_else(Utc::now);
+
+        // Parse To and Cc
+        let to: Vec<String> = get_header("To")
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect();
+        
+        let cc: Vec<String> = get_header("Cc")
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect();
+
+        // Extract body
+        let (body_text, body_html) = self.extract_body(&msg.payload);
+
+        Ok(Email {
+            id: msg.id,
+            thread_id: msg.thread_id,
+            from: get_header("From"),
+            to,
+            cc,
+            subject: get_header("Subject"),
+            body_text,
+            body_html,
+            date,
+            is_unread,
+            labels,
+        })
     }
 
     /// Get summary text for LLM context

@@ -12,11 +12,21 @@ use crate::integrations::{
 use crate::knowledge::{KnowledgeGraph, RelationshipType};
 use crate::llm::OllamaClient;
 use crate::router::phase6_commands;
-use crate::intelligence::{ConversationContext, EventReference, EmailReference, PersonReference};
+use crate::intelligence::{ConversationContext, EventReference, EmailReference, PersonReference, PendingAction};
 use anyhow::Result;
 use std::sync::Arc;
 use std::path::Path;
 use serde::Deserialize;
+
+/// Truncate a snippet to a maximum length, adding ellipsis if needed
+fn truncate_snippet(snippet: &str, max_len: usize) -> String {
+    let clean = snippet.replace('\n', " ").replace("  ", " ");
+    if clean.len() <= max_len {
+        clean
+    } else {
+        format!("{}...", &clean[..max_len.saturating_sub(3)])
+    }
+}
 
 /// Actions for contact updates parsed from LLM response
 #[derive(Debug, Deserialize)]
@@ -37,6 +47,11 @@ pub enum HandleResult {
     NotHandled,
     /// Error occurred
     Error(String),
+    /// Intent needs more information - ask a follow-up question
+    NeedsInfo {
+        question: String,
+        context: String,
+    },
 }
 
 /// Intent handler that routes intents to actions
@@ -530,9 +545,20 @@ impl<'a> IntentHandler<'a> {
                         if emails.is_empty() {
                             Ok(HandleResult::Handled("📧 No unread emails!".to_string()))
                         } else {
-                            let mut output = format!("📧 Unread Emails ({}):\n", emails.len());
+                            // Generate a quick AI summary of unread emails
+                            let summary = self.summarize_email_list(&emails).await;
+                            let mut output = format!("📧 Unread Emails ({}):\n\n", emails.len());
+                            
+                            if !summary.is_empty() {
+                                output.push_str(&format!("📝 **Quick Summary:** {}\n\n", summary));
+                            }
+                            
                             for email in &emails {
-                                output.push_str(&format!("  {}\n", email.display_short()));
+                                output.push_str(&format!("  {} - {}\n    ↳ {}\n\n", 
+                                    email.from_short(),
+                                    email.subject,
+                                    truncate_snippet(&email.snippet, 80)
+                                ));
                             }
                             Ok(HandleResult::Handled(output))
                         }
@@ -546,9 +572,22 @@ impl<'a> IntentHandler<'a> {
                         if emails.is_empty() {
                             Ok(HandleResult::Handled("📧 No emails found.".to_string()))
                         } else {
-                            let mut output = format!("📧 Recent Emails ({}):\n", emails.len());
+                            // Generate a quick AI summary of recent emails
+                            let summary = self.summarize_email_list(&emails).await;
+                            let mut output = format!("📧 Recent Emails ({}):\n\n", emails.len());
+                            
+                            if !summary.is_empty() {
+                                output.push_str(&format!("📝 **Quick Summary:** {}\n\n", summary));
+                            }
+                            
                             for email in &emails {
-                                output.push_str(&format!("  {}\n", email.display_short()));
+                                let unread = if email.is_unread { "●" } else { "○" };
+                                output.push_str(&format!("  {} {} - {}\n    ↳ {}\n\n", 
+                                    unread,
+                                    email.from_short(),
+                                    email.subject,
+                                    truncate_snippet(&email.snippet, 80)
+                                ));
                             }
                             Ok(HandleResult::Handled(output))
                         }
@@ -562,9 +601,22 @@ impl<'a> IntentHandler<'a> {
                         if emails.is_empty() {
                             Ok(HandleResult::Handled(format!("📧 No emails from {}.", sender)))
                         } else {
-                            let mut output = format!("📧 Emails from {} ({}):\n", sender, emails.len());
+                            // Generate a quick AI summary for emails from this sender
+                            let summary = self.summarize_email_list(&emails).await;
+                            let mut output = format!("📧 Emails from {} ({}):\n\n", sender, emails.len());
+                            
+                            if !summary.is_empty() {
+                                output.push_str(&format!("📝 **Summary:** {}\n\n", summary));
+                            }
+                            
                             for email in &emails {
-                                output.push_str(&format!("  {}\n", email.display_short()));
+                                let unread = if email.is_unread { "●" } else { "○" };
+                                output.push_str(&format!("  {} {} - {}\n    ↳ {}\n\n", 
+                                    unread,
+                                    email.date.format("%b %d"),
+                                    email.subject,
+                                    truncate_snippet(&email.snippet, 80)
+                                ));
                             }
                             Ok(HandleResult::Handled(output))
                         }
@@ -605,10 +657,123 @@ impl<'a> IntentHandler<'a> {
             EmailQueryType::DateRange { from, to } => {
                 self.handle_email_date_range(&client, from.as_ref(), to.as_ref()).await
             }
+            EmailQueryType::ConversationWith(person) => {
+                self.handle_email_conversation(&client, &person).await
+            }
             EmailQueryType::Filter(filter) => {
                 self.handle_email_complex_filter(&client, filter).await
             }
         }
+    }
+
+    /// Handle email conversation/thread summarization
+    async fn handle_email_conversation(&self, client: &GmailClient, person: &str) -> Result<HandleResult> {
+        // Try to get email address from knowledge graph
+        let person_email = self.graph.find_person(person)
+            .ok()
+            .flatten()
+            .and_then(|e| e.properties.get("email").cloned());
+        
+        // Search for conversations with this person
+        let search_term = person_email.as_deref().unwrap_or(person);
+        
+        match client.get_conversation_with(search_term, 5).await {
+            Ok(threads) => {
+                if threads.is_empty() {
+                    Ok(HandleResult::Handled(format!(
+                        "📧 No email conversations found with {}.", person
+                    )))
+                } else {
+                    let mut output = format!("📧 Conversations with {} ({} threads):\n\n", person, threads.len());
+                    
+                    // Add summary of each thread
+                    for thread in &threads {
+                        output.push_str(&format!(
+                            "**{}**\n{} messages | Participants: {}\nLast: {}\n\n",
+                            thread.subject,
+                            thread.messages.len(),
+                            thread.participants.join(", "),
+                            thread.messages.last()
+                                .map(|m| m.date.format("%b %d, %Y").to_string())
+                                .unwrap_or_default(),
+                        ));
+                    }
+                    
+                    // Use LLM to summarize all conversations
+                    let summary = self.summarize_email_threads(&threads).await;
+                    if !summary.is_empty() {
+                        output.push_str(&format!("\n📝 **Summary:**\n{}", summary));
+                    }
+                    
+                    Ok(HandleResult::Handled(output))
+                }
+            }
+            Err(e) => Ok(HandleResult::Error(format!(
+                "Could not fetch conversations with {}: {}", person, e
+            )))
+        }
+    }
+    
+    /// Summarize email threads using LLM
+    async fn summarize_email_threads(&self, threads: &[crate::integrations::google::gmail::EmailThread]) -> String {
+        // Build conversation text for summarization
+        let mut conversation_text = String::new();
+        
+        for thread in threads {
+            conversation_text.push_str(&format!("\n=== Thread: {} ===\n", thread.subject));
+            conversation_text.push_str(&thread.as_conversation_text());
+        }
+        
+        // Truncate if too long
+        if conversation_text.len() > 8000 {
+            conversation_text.truncate(8000);
+            conversation_text.push_str("\n... (truncated)");
+        }
+        
+        let prompt = format!(
+            r#"Summarize this email conversation. Extract:
+1. Key topics discussed
+2. Important decisions or agreements
+3. Action items or follow-ups mentioned
+4. Overall tone/status of the conversation
+
+Conversation:
+{}
+
+Provide a concise summary in 3-5 bullet points."#,
+            conversation_text
+        );
+        
+        self.llm.query(&prompt).await.unwrap_or_default()
+    }
+    
+    /// Generate a quick one-line summary of a list of emails
+    async fn summarize_email_list(&self, emails: &[crate::integrations::google::gmail::EmailSummary]) -> String {
+        if emails.is_empty() {
+            return String::new();
+        }
+        
+        // Build a brief list for the LLM
+        let email_list: Vec<String> = emails.iter().take(10)
+            .map(|e| format!("- From: {} | Subject: {} | Preview: {}", 
+                e.from_short(), 
+                e.subject, 
+                truncate_snippet(&e.snippet, 50)))
+            .collect();
+        
+        let prompt = format!(
+            r#"Give a ONE sentence summary of what these emails are about. Be concise.
+
+Emails:
+{}
+
+One sentence summary:"#,
+            email_list.join("\n")
+        );
+        
+        self.llm.query(&prompt).await
+            .map(|s| s.trim().to_string())
+            .unwrap_or_default()
     }
 
     /// Handle topic-based email search
@@ -1147,27 +1312,195 @@ Respond with just the JSON array, e.g., [1, 3, 5] or [] if none are relevant:"#,
     // Contact/Knowledge handlers
 
     async fn handle_contact_update(&self, input: &str) -> Result<HandleResult> {
-        // Use LLM to parse the contact update request
-        let prompt = format!(r#"Parse this contact management request and extract the actions to perform.
+        // First, check if this is a response to a pending contact action
+        if let Some(context) = &self.context {
+            if let Some(PendingAction::AddContacts { names, waiting_for, current_index, collected }) = &context.pending_action {
+                return self.handle_contact_followup(input, names, waiting_for, *current_index, collected).await;
+            }
+        }
+        
+        // Parse the contact request - extract names only, don't hallucinate details
+        let names = self.extract_contact_names(input);
+        
+        if names.is_empty() {
+            // Try legacy parsing for specific property updates
+            if let Some(actions) = self.try_parse_contact_directly(input) {
+                if !actions.is_empty() {
+                    return self.execute_contact_actions(&actions).await;
+                }
+            }
+            return Ok(HandleResult::Error(
+                "I couldn't find any names in that request. Try: 'Add John' or 'Add Sarah, Mike, and Bob'".to_string()
+            ));
+        }
+        
+        // Check if input already contains explicit details (email, organization)
+        let has_email = input.contains('@');
+        let has_org = input.to_lowercase().contains(" at ") || 
+                      input.to_lowercase().contains(" works for ") ||
+                      input.to_lowercase().contains(" from ");
+        
+        // If explicit details provided, use the old LLM parsing flow
+        if has_email || has_org {
+            return self.handle_contact_with_details(input).await;
+        }
+        
+        // Just names provided - add them and ask if user wants to add more info
+        let mut results = Vec::new();
+        for name in &names {
+            match self.graph.add_person(name.as_str()) {
+                Ok(entity) => {
+                    results.push(format!("✓ Added: {}", entity.name));
+                }
+                Err(e) => {
+                    // Person might already exist
+                    if e.to_string().contains("UNIQUE constraint") {
+                        results.push(format!("○ {} already exists", name));
+                    } else {
+                        results.push(format!("✗ Could not add {}: {}", name, e));
+                    }
+                }
+            }
+        }
+        
+        let output = format!(
+            "👤 Added {} contact{}:\n{}\n\n💡 Want to add more details? Try:\n  • \"John's email is john@example.com\"\n  • \"Sarah works at Google\"",
+            names.len(),
+            if names.len() == 1 { "" } else { "s" },
+            results.join("\n")
+        );
+        
+        Ok(HandleResult::Handled(output))
+    }
+    
+    /// Extract contact names from input without hallucinating details
+    fn extract_contact_names(&self, input: &str) -> Vec<String> {
+        let lower = input.to_lowercase();
+        let mut names = Vec::new();
+        
+        // Remove common prefixes
+        let cleaned = lower
+            .trim_start_matches("add ")
+            .trim_start_matches("remember ")
+            .trim_start_matches("create contact ")
+            .trim_start_matches("new contact ");
+        
+        // Handle "and" separated names: "John, Sarah and Mike" or "John, Sarah, and Mike"
+        // First split by comma and "and"
+        let separators = regex::Regex::new(r"(?i)\s*,\s*|\s+and\s+|\s*&\s*").unwrap();
+        let parts: Vec<&str> = separators.split(cleaned).collect();
+        
+        for part in parts {
+            let part = part.trim();
+            // Skip if empty or looks like a relationship/property
+            if part.is_empty() || 
+               part.contains('@') ||
+               part.starts_with("works") ||
+               part.starts_with("at ") ||
+               part.starts_with("from ") ||
+               part.starts_with("who ") ||
+               part.starts_with("that ") {
+                continue;
+            }
+            
+            // Take only the name part (first 1-3 words, capitalized)
+            let words: Vec<&str> = part.split_whitespace().collect();
+            if words.is_empty() {
+                continue;
+            }
+            
+            // Check if words look like names (typically 1-3 words)
+            let name_words: Vec<&str> = words.iter()
+                .take(3)
+                .take_while(|w| {
+                    // Stop at relationship words
+                    let lw = w.to_lowercase();
+                    !["works", "at", "from", "is", "who", "that", "as", "for"].contains(&lw.as_str())
+                })
+                .copied()
+                .collect();
+            
+            if !name_words.is_empty() {
+                // Capitalize the name properly
+                let name = name_words.iter()
+                    .map(|w| {
+                        let mut chars = w.chars();
+                        match chars.next() {
+                            Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
+                            None => String::new(),
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                
+                if !name.is_empty() && name.len() > 1 {
+                    names.push(name);
+                }
+            }
+        }
+        
+        names
+    }
+    
+    /// Handle contact follow-up response (when user provides more info)
+    async fn handle_contact_followup(
+        &self,
+        input: &str,
+        _names: &[String],
+        waiting_for: &crate::intelligence::ContactField,
+        _current_index: usize,
+        _collected: &[crate::intelligence::ContactInfo],
+    ) -> Result<HandleResult> {
+        use crate::intelligence::ContactField;
+        
+        match waiting_for {
+            ContactField::Email => {
+                // Try to extract email from input
+                if let Some(email) = self.extract_email(input) {
+                    return Ok(HandleResult::Handled(format!("✓ Got email: {}", email)));
+                }
+                Ok(HandleResult::NeedsInfo {
+                    question: "I didn't catch that email. Please provide a valid email address.".to_string(),
+                    context: "contact_email".to_string(),
+                })
+            }
+            ContactField::Organization => {
+                Ok(HandleResult::Handled(format!("✓ Got organization: {}", input.trim())))
+            }
+            ContactField::Done => {
+                Ok(HandleResult::Handled("Contact details saved!".to_string()))
+            }
+        }
+    }
+    
+    /// Extract email from text
+    fn extract_email(&self, input: &str) -> Option<String> {
+        let email_re = regex::Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}").ok()?;
+        email_re.find(input).map(|m| m.as_str().to_string())
+    }
+    
+    /// Handle contact update when explicit details are provided
+    async fn handle_contact_with_details(&self, input: &str) -> Result<HandleResult> {
+        // Use LLM to parse the contact update request - but only extract explicit info
+        let prompt = format!(r#"Parse this contact management request. Extract ONLY information explicitly stated.
+DO NOT invent or guess emails, organizations, or relationships that aren't clearly stated.
 
 Request: "{}"
 
-Return JSON with an array of actions. Each action can be:
+Return JSON array of actions. Each action can be:
 1. Add a person: {{"action": "add_person", "name": "Full Name"}}
-2. Set a property: {{"action": "set_property", "person": "Name", "property": "email", "value": "email@example.com"}}
-3. Add relationship: {{"action": "add_relationship", "person": "Name", "relationship": "works_at", "target": "Company Name"}}
-
-Relationship types: works_at, studies_at, manages, knows, works_on
+2. Set a property (ONLY if explicitly stated): {{"action": "set_property", "person": "Name", "property": "email", "value": "actual@email.com"}}
+3. Add relationship (ONLY if explicitly stated): {{"action": "add_relationship", "person": "Name", "relationship": "works_at", "target": "Company Name"}}
 
 Examples:
-- "Add John Smith as a person I know" -> [{{"action": "add_person", "name": "John Smith"}}]
-- "John's email is john@example.com" -> [{{"action": "set_property", "person": "John", "property": "email", "value": "john@example.com"}}]
-- "Add Sarah and Mike, they work at Google" -> [
+- "Add John" -> [{{"action": "add_person", "name": "John"}}]
+- "Add Sarah, she works at Google" -> [
     {{"action": "add_person", "name": "Sarah"}},
-    {{"action": "add_person", "name": "Mike"}},
-    {{"action": "add_relationship", "person": "Sarah", "relationship": "works_at", "target": "Google"}},
-    {{"action": "add_relationship", "person": "Mike", "relationship": "works_at", "target": "Google"}}
+    {{"action": "add_relationship", "person": "Sarah", "relationship": "works_at", "target": "Google"}}
   ]
+- "Bob's email is bob@test.com" -> [{{"action": "set_property", "person": "Bob", "property": "email", "value": "bob@test.com"}}]
+
+IMPORTANT: Only include set_property or add_relationship if the info is EXPLICITLY in the request.
 
 Respond with ONLY valid JSON array:"#,
             input
@@ -1186,7 +1519,7 @@ Respond with ONLY valid JSON array:"#,
                     actions
                 } else {
                     return Ok(HandleResult::Error(format!(
-                        "Could not parse contact update: {}. Try using commands like /add person <name> or /set <name> email <email>",
+                        "Could not parse contact update: {}",
                         e
                     )));
                 }
@@ -1194,14 +1527,8 @@ Respond with ONLY valid JSON array:"#,
         };
 
         if actions.is_empty() {
-            // Try direct parsing before giving up
-            if let Some(actions) = self.try_parse_contact_directly(input) {
-                if !actions.is_empty() {
-                    return self.execute_contact_actions(&actions).await;
-                }
-            }
             return Ok(HandleResult::Error(
-                "Could not understand the contact update. Try: /add person <name> or /set <name> email <email>".to_string()
+                "Could not understand the contact update.".to_string()
             ));
         }
 

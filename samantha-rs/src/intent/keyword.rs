@@ -311,6 +311,42 @@ impl KeywordClassifier {
         let mut score: f32 = 0.0;
         let mut query_type = EmailQueryType::List;
         
+        // Conversation/thread patterns - check first as they have specific structure
+        let conversation_patterns = [
+            "summarize my conversation with",
+            "summarize conversation with", 
+            "summarize the conversation with",
+            "conversation with",
+            "my emails with",
+            "email thread with",
+            "thread with",
+            "discussion with",
+            "correspondence with",
+            "emails between me and",
+        ];
+        for pattern in conversation_patterns {
+            if lower.contains(pattern) {
+                // Extract person name
+                if let Some(idx) = lower.find(pattern) {
+                    let after = &lower[idx + pattern.len()..].trim();
+                    // Take words until end or stop word
+                    let stop_words = ["?", ".", "!", ",", " about ", " from ", " today", " this week"];
+                    let mut end_idx = after.len();
+                    for stop in stop_words {
+                        if let Some(stop_idx) = after.find(stop) {
+                            end_idx = end_idx.min(stop_idx);
+                        }
+                    }
+                    let person = after[..end_idx].trim().to_string();
+                    if !person.is_empty() {
+                        query_type = EmailQueryType::ConversationWith(person);
+                        score = 0.85;
+                        return (score, query_type);
+                    }
+                }
+            }
+        }
+        
         let email_query_words = ["my emails", "my inbox", "my mail", "check email",
                                 "show email", "any emails", "any mail", "unread emails",
                                 "new emails", "show me my", "emails i", "what emails"];

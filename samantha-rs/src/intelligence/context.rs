@@ -57,6 +57,47 @@ pub enum PendingAction {
         email_ref: EmailReference,
         body: Option<String>,
     },
+    /// Adding contacts - waiting for more details
+    AddContacts {
+        /// Names of people to add
+        names: Vec<String>,
+        /// Which field we're waiting for (email, organization, etc.)
+        waiting_for: ContactField,
+        /// Index of person we're currently asking about
+        current_index: usize,
+        /// Collected info so far
+        collected: Vec<ContactInfo>,
+    },
+    /// Composing an email - waiting for content
+    ComposeEmail {
+        to: Vec<String>,
+        subject: Option<String>,
+        waiting_for: EmailField,
+    },
+}
+
+/// What field we're waiting for when adding contacts
+#[derive(Debug, Clone, PartialEq)]
+pub enum ContactField {
+    Email,
+    Organization,
+    Done,
+}
+
+/// What field we're waiting for when composing email
+#[derive(Debug, Clone, PartialEq)]
+pub enum EmailField {
+    Recipient,
+    Subject,
+    Body,
+}
+
+/// Collected contact information
+#[derive(Debug, Clone, Default)]
+pub struct ContactInfo {
+    pub name: String,
+    pub email: Option<String>,
+    pub organization: Option<String>,
 }
 
 /// Updates to apply to an event

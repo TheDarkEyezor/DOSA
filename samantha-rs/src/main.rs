@@ -309,6 +309,10 @@ async fn main() -> Result<()> {
                                 println!("   To enable this, please authenticate with: /auth google\n");
                                 continue;
                             }
+                            Ok(HandleResult::NeedsInfo { question, .. }) => {
+                                println!("\n❓ {}\n", question);
+                                continue;
+                            }
                             Ok(HandleResult::Error(msg)) => {
                                 println!("\n❌ {}\n", msg);
                                 continue;
@@ -663,6 +667,9 @@ async fn process_message(
         }
         Ok(HandleResult::NeedsAuth(service)) => {
             return format!("🔐 Please authenticate with {} first. Use /auth {} in CLI mode.", service, service);
+        }
+        Ok(HandleResult::NeedsInfo { question, .. }) => {
+            return format!("❓ {}", question);
         }
         Ok(HandleResult::NotHandled) => {}
         Ok(HandleResult::Error(e)) => return format!("Error: {}", e),

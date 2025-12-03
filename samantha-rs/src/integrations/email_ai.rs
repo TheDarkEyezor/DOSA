@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use crate::llm::OllamaClient;
 use crate::knowledge::KnowledgeGraph;
-use crate::integrations::google::gmail::{GmailClient, EmailDraft, Email};
+use crate::integrations::google::gmail::{GmailClient, EmailDraft, Email, EmailThread};
 use crate::integrations::google::calendar::{GoogleCalendarClient, GCalEvent};
 use crate::integrations::oauth::{OAuthManager, Provider};
 
@@ -409,6 +409,66 @@ Example: {{"event_search":"dinner tomorrow","message_intent":"time changed to 7p
         // Fall back to first event
         Ok(events[0].clone())
     }
+    
+    /// Get conversation history with a person and optionally summarize it
+    pub async fn get_conversation(&self, person: &str, summarize: bool) -> Result<ConversationResult> {
+        let client = GmailClient::new(self.oauth.clone());
+        
+        // Get email threads with this person
+        let threads = client.get_conversation_with(person, 5).await?;
+        
+        if threads.is_empty() {
+            return Err(anyhow!("No emails found with {}", person));
+        }
+        
+        let total_messages: usize = threads.iter().map(|t| t.messages.len()).sum();
+        
+        let summary = if summarize {
+            Some(self.summarize_threads(&threads).await?)
+        } else {
+            None
+        };
+        
+        Ok(ConversationResult {
+            person: person.to_string(),
+            threads,
+            total_messages,
+            summary,
+        })
+    }
+    
+    /// Summarize email threads using LLM
+    async fn summarize_threads(&self, threads: &[crate::integrations::google::gmail::EmailThread]) -> Result<String> {
+        // Build conversation text for summarization
+        let mut conversation_text = String::new();
+        
+        for thread in threads {
+            conversation_text.push_str(&format!("\n=== Thread: {} ===\n", thread.subject));
+            conversation_text.push_str(&thread.as_conversation_text());
+        }
+        
+        // Truncate if too long
+        if conversation_text.len() > 8000 {
+            conversation_text.truncate(8000);
+            conversation_text.push_str("\n... (truncated)");
+        }
+        
+        let prompt = format!(
+            r#"Summarize this email conversation. Extract:
+1. Key topics discussed
+2. Important decisions or agreements
+3. Action items or follow-ups mentioned
+4. Overall tone/status of the conversation
+
+Conversation:
+{}
+
+Provide a concise summary in 3-5 bullet points."#,
+            conversation_text
+        );
+        
+        self.llm.query(&prompt).await
+    }
 }
 
 /// Parsed email request from natural language
@@ -425,6 +485,61 @@ pub struct ParsedEmailRequest {
 struct ParsedEventReference {
     event_search: String,
     message_intent: String,
+}
+
+/// Result of conversation retrieval/summarization
+#[derive(Debug)]
+pub struct ConversationResult {
+    pub person: String,
+    pub threads: Vec<crate::integrations::google::gmail::EmailThread>,
+    pub total_messages: usize,
+    pub summary: Option<String>,
+}
+
+impl ConversationResult {
+    /// Display the conversation summary
+    pub fn display(&self) -> String {
+        let mut output = format!(
+            "📧 Conversation with {}\n   {} thread(s), {} total message(s)\n\n",
+            self.person,
+            self.threads.len(),
+            self.total_messages
+        );
+        
+        if let Some(ref summary) = self.summary {
+            output.push_str("📋 Summary:\n");
+            output.push_str(summary);
+            output.push_str("\n\n");
+        }
+        
+        output.push_str("📂 Threads:\n");
+        for thread in &self.threads {
+            output.push_str(&format!(
+                "   • {} ({} messages)\n",
+                thread.subject,
+                thread.messages.len()
+            ));
+        }
+        
+        output
+    }
+    
+    /// Display full conversation with all messages
+    pub fn display_full(&self) -> String {
+        let mut output = format!(
+            "📧 Full Conversation with {}\n   {} thread(s), {} total message(s)\n\n",
+            self.person,
+            self.threads.len(),
+            self.total_messages
+        );
+        
+        for thread in &self.threads {
+            output.push_str(&thread.display());
+            output.push_str("\n");
+        }
+        
+        output
+    }
 }
 
 /// Parsed reply

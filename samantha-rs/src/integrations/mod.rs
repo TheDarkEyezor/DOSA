@@ -18,7 +18,7 @@ pub mod web_search;
 
 pub use oauth::{OAuthManager, Provider, AuthStatus};
 pub use google::calendar::{GoogleCalendarClient, NewCalendarEvent, ParsedEvent, EventUpdate};
-pub use google::gmail::{GmailClient, EmailDraft};
+pub use google::gmail::{GmailClient, EmailDraft, EmailThread, Email, EmailSummary};
 pub use importance::ImportanceScorer;
 pub use calendar_ai::{CalendarAI, EventCreationResult, EventUpdateResult, EventDeleteResult, ResolvedAttendee};
 pub use email_ai::{EmailAI, EmailComposeResult};

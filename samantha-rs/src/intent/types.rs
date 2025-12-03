@@ -88,6 +88,8 @@ pub enum EmailQueryType {
     AboutOrg(String),
     /// Filter by time range
     DateRange { from: Option<chrono::DateTime<chrono::Utc>>, to: Option<chrono::DateTime<chrono::Utc>> },
+    /// Get full conversation/thread with a person for summarization
+    ConversationWith(String),
     /// Complex filter combining multiple criteria
     Filter(EmailFilter),
 }

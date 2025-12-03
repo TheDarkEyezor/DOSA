@@ -16,7 +16,7 @@ pub use extraction::EntityExtractor;
 pub use graphrag::GraphRAG;
 pub use kag::LogicalSolver;
 pub use document::{DocumentIngester, IngestionResult};
-pub use context::{ConversationContext, EventReference, EmailReference, PersonReference, PendingAction};
+pub use context::{ConversationContext, EventReference, EmailReference, PersonReference, PendingAction, ContactField, ContactInfo, EmailField};
 pub use multihop::{MultiHopEngine, MultiHopResult, MultiHopData};
 pub use embeddings::{EmbeddingsClient, cosine_similarity};
 pub use chunking::{TextChunker, ChunkConfig, TextChunk, KeywordScorer};
