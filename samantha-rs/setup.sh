@@ -272,7 +272,7 @@ RUN_SCRIPT="$SCRIPT_DIR/run.sh"
 cat > "$RUN_SCRIPT" << 'EOF'
 #!/bin/bash
 #
-# Run DOSA
+# Run Samantha
 #
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -284,9 +284,9 @@ if ! pgrep -x "ollama" > /dev/null; then
     sleep 2
 fi
 
-# Run DOSA
+# Run Samantha
 cd "$SCRIPT_DIR"
-./target/release/dosa "$@"
+./target/release/samantha "$@"
 EOF
 
 chmod +x "$RUN_SCRIPT"
@@ -300,7 +300,7 @@ if [ "$ENABLE_WHATSAPP" = true ]; then
     cat > "$WA_RUN_SCRIPT" << 'EOF'
 #!/bin/bash
 #
-# Run DOSA with WhatsApp integration
+# Run Samantha with WhatsApp integration
 #
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -327,13 +327,13 @@ if ! pgrep -x "ollama" > /dev/null; then
     sleep 2
 fi
 
-echo "Starting DOSA with WhatsApp integration..."
+echo "Starting Samantha with WhatsApp integration..."
 echo "Webhook endpoint: http://your-server:$WEBHOOK_PORT/webhook"
 echo ""
 
-# Run DOSA with WhatsApp mode
+# Run Samantha with WhatsApp mode
 cd "$SCRIPT_DIR"
-./target/release/dosa --whatsapp "$@"
+./target/release/samantha --whatsapp "$@"
 EOF
 
     chmod +x "$WA_RUN_SCRIPT"
@@ -348,9 +348,31 @@ echo "╔═══════════════════════�
 echo "║  Setup Complete!                                           ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo ""
-echo "To run DOSA:"
+echo "To run Samantha:"
 echo "  ${GREEN}./run.sh${NC}"
 echo ""
+
+# Check for Google credentials
+GOOGLE_CREDS_USER="$HOME/.config/samantha/google_credentials.json"
+GOOGLE_CREDS_DATA="$SCRIPT_DIR/data/google_credentials.json"
+
+if [ -f "$GOOGLE_CREDS_USER" ] || [ -f "$GOOGLE_CREDS_DATA" ]; then
+    print_success "Google credentials found"
+else
+    print_warning "Google Calendar/Email integration requires credentials."
+    echo ""
+    echo "To enable Google integrations:"
+    echo "  1. Download your OAuth credentials JSON from Google Cloud Console"
+    echo "  2. Place it in ONE of these locations:"
+    echo "     ${CYAN}~/.config/samantha/google_credentials.json${NC}  (recommended)"
+    echo "     ${CYAN}./data/google_credentials.json${NC}"
+    echo ""
+    echo "  Or set environment variables:"
+    echo "     export GOOGLE_CLIENT_ID=\"your-client-id\""
+    echo "     export GOOGLE_CLIENT_SECRET=\"your-client-secret\""
+    echo ""
+fi
+
 if [ "$ENABLE_WHATSAPP" = true ]; then
     echo "To run with WhatsApp:"
     echo "  1. Edit ${YELLOW}target/release/data/whatsapp_config.json${NC}"
@@ -359,6 +381,6 @@ if [ "$ENABLE_WHATSAPP" = true ]; then
     echo ""
 fi
 echo "For help:"
-echo "  ${GREEN}./target/release/dosa --help${NC}"
+echo "  ${GREEN}./target/release/samantha --help${NC}"
 echo ""
 print_success "Setup complete!"

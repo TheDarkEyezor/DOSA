@@ -100,7 +100,7 @@ whisper-rs = { git = "https://codeberg.org/tazz4843/whisper-rs.git", optional = 
 tokio-cron-scheduler = "0.13"
 
 # Platform-specific directories
-dirs = { version = "5.0", optional = true }
+dirs = "5.0"
 
 # Logging
 log = "0.4"
@@ -114,6 +114,6 @@ axum = { version = "0.7", optional = true }
 
 [features]
 default = []
-voice = ["cpal", "hound", "whisper-rs", "dirs"]
+voice = ["cpal", "hound", "whisper-rs"]
 whatsapp = ["axum"]
 

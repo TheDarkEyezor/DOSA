@@ -94,8 +94,9 @@ impl OAuthManager {
     /// 
     /// Loads credentials in this order:
     /// 1. Environment variables (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
-    /// 2. google_credentials.json in data directory
-    /// 3. client_secret*.json files in current directory
+    /// 2. ~/.config/samantha/google_credentials.json (user config directory)
+    /// 3. data/google_credentials.json (relative to binary or current directory)
+    /// 4. client_secret*.json files in current directory
     pub fn new() -> Self {
         // First try environment variables
         let mut google_client_id = std::env::var("GOOGLE_CLIENT_ID").ok();
@@ -118,15 +119,22 @@ impl OAuthManager {
 
     /// Load Google credentials from a JSON file
     fn load_credentials_from_file() -> Option<(String, String)> {
-        // Try multiple locations
-        let locations = [
-            // Data directory locations
+        // Try multiple locations in order of preference
+        let mut locations = vec![
+            // User config directory (highest priority)
+            Self::get_user_config_dir().join("google_credentials.json"),
+            Self::get_user_config_dir().join("client_secret.json"),
+            // Data directory locations (relative to binary)
             Self::get_data_dir().join("google_credentials.json"),
             Self::get_data_dir().join("client_secret.json"),
             // Current directory
+            std::path::PathBuf::from("data/google_credentials.json"),
             std::path::PathBuf::from("google_credentials.json"),
             std::path::PathBuf::from("client_secret.json"),
         ];
+
+        // Remove duplicates while preserving order
+        locations.dedup();
 
         for path in &locations {
             if let Some(creds) = Self::try_load_credentials(path) {
@@ -175,6 +183,18 @@ impl OAuthManager {
             .ok()
             .and_then(|p| p.parent().map(|p| p.join("data")))
             .unwrap_or_else(|| std::path::PathBuf::from("./data"))
+    }
+
+    /// Get user config directory (~/.config/samantha)
+    fn get_user_config_dir() -> std::path::PathBuf {
+        dirs::config_dir()
+            .map(|p| p.join("samantha"))
+            .unwrap_or_else(|| {
+                // Fallback to ~/.config/samantha
+                dirs::home_dir()
+                    .map(|h| h.join(".config").join("samantha"))
+                    .unwrap_or_else(|| std::path::PathBuf::from("."))
+            })
     }
 
     /// Create with explicit credentials
