@@ -191,6 +191,32 @@ fi
 print_success "DOSA built successfully"
 
 # =============================================================================
+# Train NLU Model (if not present)
+# =============================================================================
+print_step "Checking NLU model..."
+
+NLU_MODEL="$SCRIPT_DIR/data/nlu/model.onnx"
+
+if [ -f "$NLU_MODEL" ]; then
+    print_success "NLU model already exists"
+else
+    print_warning "NLU model not found. Training now..."
+    echo ""
+    echo "This may take 10-30 minutes depending on your hardware."
+    echo "For faster initial setup, you can Ctrl+C and run later with:"
+    echo "  ./scripts/train_nlu.sh --quick"
+    echo ""
+    
+    if [ -f "$SCRIPT_DIR/scripts/train_nlu.sh" ]; then
+        # Use quick mode for initial setup
+        "$SCRIPT_DIR/scripts/train_nlu.sh" --quick
+    else
+        print_warning "Training script not found. You'll need to train the NLU model manually."
+        print_warning "Run: cd nlu && make all"
+    fi
+fi
+
+# =============================================================================
 # Create data directory and copy NLU model
 # =============================================================================
 print_step "Setting up data directory..."
@@ -199,13 +225,18 @@ DATA_DIR="$SCRIPT_DIR/target/release/data"
 mkdir -p "$DATA_DIR"
 
 # Copy NLU model if it exists
-if [ -d "$SCRIPT_DIR/nlu/output" ]; then
-    print_step "Copying NLU model..."
+if [ -d "$SCRIPT_DIR/data/nlu" ] && [ -f "$SCRIPT_DIR/data/nlu/model.onnx" ]; then
+    print_step "Copying NLU model to release directory..."
+    mkdir -p "$DATA_DIR/nlu"
+    cp "$SCRIPT_DIR/data/nlu/"* "$DATA_DIR/nlu/" 2>/dev/null || true
+    print_success "NLU model copied"
+elif [ -d "$SCRIPT_DIR/nlu/output" ]; then
+    print_step "Copying NLU model from training output..."
     rm -rf "$DATA_DIR/nlu"
     cp -r "$SCRIPT_DIR/nlu/output" "$DATA_DIR/nlu"
     print_success "NLU model copied"
 else
-    print_warning "NLU model not found in nlu/output. Run NLU training first."
+    print_warning "NLU model not found. Run: ./scripts/train_nlu.sh"
 fi
 
 # =============================================================================

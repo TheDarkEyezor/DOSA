@@ -3,6 +3,7 @@
 
 # Database files (local only)
 /data/*.db
+*.db
 
 # Editor files
 *.swp
@@ -12,29 +13,62 @@
 
 # OS files
 .DS_Store
+Thumbs.db
 
 # Python virtual environments
 *.venv*
 .venv/
+venv/
+env/
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+.eggs/
 
 # NLU model files (large, generated)
 nlu/output/
+data/nlu/model.onnx
+data/nlu/model.onnx.data
+
+# PyTorch / ML model files (large binaries)
 *.onnx
 *.onnx.data
 *.safetensors
 *.pth
+*.pt
 *.bin
+*.h5
+*.pkl
+optimizer.pt
+rng_state.pth
 
-# Checkpoints
+# Checkpoints (training artifacts)
 checkpoint-*/
+checkpoints/
+**/checkpoint-*/
 
-# Keep config but ignore model weights
+# HuggingFace cache
+.cache/
+~/.cache/huggingface/
+
+# Keep training data and configs
 !nlu/data/*.txt
 !nlu/data/*.jsonl
+!nlu/config.json
 
 # Credentials (never commit)
 *credentials*.json
 *token*.json
 *secret*.json
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.temp/

@@ -15,6 +15,7 @@ A warm, curious AI companion with memory, reminders, and natural conversation.
 
 - [Rust](https://rustup.rs/) (latest stable)
 - [Ollama](https://ollama.ai/) with a model installed
+- Python 3.9+ (for NLU model training)
 
 ## Quick Start
 
@@ -24,6 +25,12 @@ A warm, curious AI companion with memory, reminders, and natural conversation.
 ./setup.sh
 ```
 
+This will:
+1. Install Rust and dependencies
+2. Install Ollama and pull the LLM model
+3. Train the NLU model (if not present)
+4. Build the project
+
 ### Manual Setup
 
 ```bash
@@ -31,11 +38,46 @@ A warm, curious AI companion with memory, reminders, and natural conversation.
 brew install ollama
 ollama pull llama3.2:3b
 
+# Train the NLU model (required on first clone)
+./scripts/train_nlu.sh
+
+# Or use quick mode for faster initial setup
+./scripts/train_nlu.sh --quick
+
 # Start Ollama server
 ollama serve
 
 # Build and run (in another terminal)
 cargo run --release
+```
+
+## NLU Model Training
+
+The NLU model files are **not stored in git** (they're ~500MB+). You must train them locally after cloning.
+
+### Quick Training (~5 minutes)
+```bash
+./scripts/train_nlu.sh --quick
+```
+
+### Full Training (~30 minutes, better accuracy)
+```bash
+./scripts/train_nlu.sh
+```
+
+### Using Make (alternative)
+```bash
+cd nlu
+make setup   # Create venv and install deps
+make all     # Generate data, train, export to ONNX
+```
+
+### Training Options
+```bash
+./scripts/train_nlu.sh --help
+./scripts/train_nlu.sh --epochs 20 --samples 1000  # Custom parameters
+./scripts/train_nlu.sh --data-only                 # Only generate data
+./scripts/train_nlu.sh --export                    # Only export to ONNX
 ```
 
 ## WhatsApp Integration
